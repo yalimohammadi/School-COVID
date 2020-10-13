@@ -1671,125 +1671,6 @@ def _find_trans_and_rec_delays_SIR_(node, sus_neighbors, trans_time_fxn,
     return trans_delay, rec_delay
 
 
-def _process_trans_SIR_(time, G, source, target, times, S, I, T, R, Q, status,
-                        rec_time, pred_inf_time, transmissions,
-                        trans_and_rec_time_fxn,
-                        trans_and_rec_time_args=()):
-    r'''
-    From figure A.4 of Kiss, Miller, & Simon.  Please cite the book if
-    using this algorithm.
-
-    :Arguments:
-
-    time : number
-        time of transmission
-**G**  networkx Graph
-    node : node
-        node receiving transmission.
-    times : list
-        list of times at which events have happened
-    S, I, T, R : lists
-        lists of numbers of nodes of each status at each time
-    Q : myQueue
-        the queue of events
-    status : dict
-        dictionary giving status of each node
-    rec_time : dict
-        dictionary giving recovery time of each node
-    pred_inf_time : dict
-        dictionary giving predicted infeciton time of nodes
-    trans_and_rec_time_fxn : function
-        trans_and_rec_time_fxn(node, susceptible_neighbors, *trans_and_rec_time_args)
-        returns tuple consisting of
-           dict of delays until transmission from node to neighbors and
-           float having delay until recovery of node
-        An example of how to use this appears in the code fast_SIR where
-        depending on whether inputs are weighted, it constructs different
-        versions of this function and then calls fast_nonMarkov_SIR.
-    trans_and_rec_time_args : tuple (default empty)
-        see trans_and_rec_time_fxn
-
-    :Returns:
-
-    nothing returned
-
-    :MODIFIES:
-
-    status : updates status of newly infected node
-    rec_time : adds recovery time for node
-    times : appends time of event
-    S : appends new S (reduced by 1 from last)
-    I : appends new I (increased by 1)
-    R : appends new R (same as last)
-    Q : adds recovery and transmission events for newly infected node.
-    pred_inf_time : updated for nodes that will receive transmission
-
-    '''
-
-    if status[target] == 'S':  # nothing happens if already infected.
-        status[target] = 'I'
-        times.append(time)
-        transmissions.append((time, source, target))
-        S.append(S[-1] - 1)  # one less susceptible
-        I.append(I[-1] + 1)  # one more infected
-        R.append(R[-1])  # no change to recovered
-
-        suscep_neighbors = [v for v in G.neighbors(target) if status[v] == 'S']
-
-        trans_delay, rec_delay = trans_and_rec_time_fxn(target, suscep_neighbors,
-                                                        *trans_and_rec_time_args)
-
-        rec_time[target] = time + rec_delay
-        if rec_time[target] <= Q.tmax:
-            Q.add(rec_time[target], _process_rec_SIR_,
-                  args=(target, times, S, I, T, R, status))
-        for v in trans_delay:
-            inf_time = time + trans_delay[v]
-            if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
-                Q.add(inf_time, _process_trans_SIR_,
-                      args=(G, target, v, times, S, I, T, R, Q,
-                            status, rec_time, pred_inf_time,
-                            transmissions, trans_and_rec_time_fxn,
-                            trans_and_rec_time_args
-                            )
-                      )
-                pred_inf_time[v] = inf_time
-
-
-def _process_rec_SIR_(time, node, times, S, I, T, R, status):
-    r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
-    book if using this algorithm.
-
-    :Arguments:
-
-        event : event
-            has details on node and time
-        times : list
-            list of times at which events have happened
-        S, I, T, R : lists
-            lists of numbers of nodes of each status at each time
-        status : dict
-            dictionary giving status of each node
-
-
-    :Returns:
-        :
-        Nothing
-
-    MODIFIES
-    ----------
-    status : updates status of newly recovered node
-    times : appends time of event
-    S : appends new S (same as last)
-    I : appends new I (decreased by 1)
-    R : appends new R (increased by 1)
-    '''
-    times.append(time)
-    S.append(S[-1])  # no change to number susceptible
-    I.append(I[-1] - 1)  # one less infected
-    R.append(R[-1] + 1)  # one more recovered
-    status[node] = 'R'
-
 
 
 
@@ -2276,8 +2157,97 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 #######OUR CODE STARTS HERE
 
-def _process_test_SIR_(time, node, times, S, I, T, R, status):
+
+def _process_trans_SIR_(time, G, source, target, times, S, I, T, R, Q, status,
+                        rec_time, pred_inf_time, transmissions,
+                        trans_and_rec_time_fxn,
+                        trans_and_rec_time_args=()):
     r'''
+    From figure A.4 of Kiss, Miller, & Simon.  Please cite the book if
+    using this algorithm.
+
+    :Arguments:
+
+    time : number
+        time of transmission
+**G**  networkx Graph
+    node : node
+        node receiving transmission.
+    times : list
+        list of times at which events have happened
+    S, I, T, R : lists
+        lists of numbers of nodes of each status at each time
+    Q : myQueue
+        the queue of events
+    status : dict
+        dictionary giving status of each node
+    rec_time : dict
+        dictionary giving recovery time of each node
+    pred_inf_time : dict
+        dictionary giving predicted infeciton time of nodes
+    trans_and_rec_time_fxn : function
+        trans_and_rec_time_fxn(node, susceptible_neighbors, *trans_and_rec_time_args)
+        returns tuple consisting of
+           dict of delays until transmission from node to neighbors and
+           float having delay until recovery of node
+        An example of how to use this appears in the code fast_SIR where
+        depending on whether inputs are weighted, it constructs different
+        versions of this function and then calls fast_nonMarkov_SIR.
+    trans_and_rec_time_args : tuple (default empty)
+        see trans_and_rec_time_fxn
+
+    :Returns:
+
+    nothing returned
+
+    :MODIFIES:
+
+    status : updates status of newly infected node
+    rec_time : adds recovery time for node
+    times : appends time of event
+    S : appends new S (reduced by 1 from last)
+    I : appends new I (increased by 1)
+    R : appends new R (same as last)
+    Q : adds recovery and transmission events for newly infected node.
+    pred_inf_time : updated for nodes that will receive transmission
+
+    '''
+
+    if status[target] == 'S' and status[source] == 'I':  # nothing happens if already infected/tested.
+        status[target] = 'I'
+        times.append(time)
+        transmissions.append((time, source, target))
+        S.append(S[-1] - 1)  # one less susceptible
+        I.append(I[-1] + 1)  # one more infected
+        T.append(T[-1])  # no change to infected tested
+        R.append(R[-1])  # no change to recovered
+
+        suscep_neighbors = [v for v in G.neighbors(target) if status[v] == 'S']
+
+        trans_delay, rec_delay = trans_and_rec_time_fxn(target, suscep_neighbors,
+                                                        *trans_and_rec_time_args)
+
+        rec_time[target] = time + rec_delay
+        if rec_time[target] <= Q.tmax:
+            Q.add(rec_time[target], _process_rec_SIR_,
+                  args=(target, times, S, I, T, R, status))
+        for v in trans_delay:
+            inf_time = time + trans_delay[v]
+            if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
+                Q.add(inf_time, _process_trans_SIR_,
+                      args=(G, target, v, times, S, I, T, R, Q,
+                            status, rec_time, pred_inf_time,
+                            transmissions, trans_and_rec_time_fxn,
+                            trans_and_rec_time_args
+                            )
+                      )
+                pred_inf_time[v] = inf_time
+
+
+def _process_rec_SIR_(time, node, times, S, I, T, R, status):
+    r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
+    book if using this algorithm.
+
     :Arguments:
 
         event : event
@@ -2305,9 +2275,48 @@ def _process_test_SIR_(time, node, times, S, I, T, R, status):
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
     I.append(I[-1] - 1)  # one less infected
-    T.append(T[-1] + 1)  # one more tested
+    T.append(T[-1])  # no change to number infected tested
+    R.append(R[-1] + 1)  # one more recovered
+    status[node] = 'R'
+
+
+
+
+def _process_test_SIR_(time, node, times, S, I, T, R, status):
+    r'''
+    :Arguments:
+
+        event : event
+            has details on node and time
+        times : list
+            list of times at which events have happened
+        S, I, T, R : lists
+            lists of numbers of nodes of each status at each time
+        status : dict
+            dictionary giving status of each node
+
+
+    :Returns:
+        :
+        Nothing
+
+    MODIFIES
+    ----------
+    status : updates status of newly recovered node
+    times : appends time of event
+    S : appends new S (same as last)
+    I : appends new I (decreased by 1)
+    R : appends new R (increased by 1)
+    '''
+    times.append(time)
+
+    if status[node] == 'I':
+        status[node] = 'T'
+        T.append(T[-1] + 1)  # one more infected tested
+
+    S.append(S[-1])  # no change to number susceptible
+    I.append(I[-1])  # no change to number infected
     R.append(R[-1])  # no change to number recovered
-    status[node] = 'T'
 
 
 

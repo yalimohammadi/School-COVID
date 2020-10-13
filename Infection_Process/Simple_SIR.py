@@ -23,7 +23,7 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
     t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                               rho=initial_fraction_infected)
     plot_simple_SIR(t, S, I, R)
-    return t,S,I,R
+    return t,S,I,T,R
 
 
 school = School(name="LA1",  num_grades=4,cohort_sizes=15,num_cohort=10)
