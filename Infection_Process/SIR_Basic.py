@@ -13,6 +13,7 @@ from collections import Counter
 #                     #
 #######################
 
+#testing
 
 def _truncated_exponential_(rate, T):
     r'''returns a number between 0 and T from an
