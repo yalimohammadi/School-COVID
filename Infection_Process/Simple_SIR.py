@@ -1,4 +1,4 @@
-import EoN
+import Infection_Process.SIR_Basic as EoN
 import matplotlib.pyplot as plt
 from Graph_Generator.single_school_generator import School
 

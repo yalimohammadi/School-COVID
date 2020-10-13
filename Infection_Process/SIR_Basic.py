@@ -445,7 +445,7 @@ def _simple_test_transmission_(u, v, p):
     return random.random() < p
 
 
-[docs]
+ 
 
 
 def discrete_SIR(G, test_transmission=_simple_test_transmission_, args=(),
@@ -643,7 +643,7 @@ def discrete_SIR(G, test_transmission=_simple_test_transmission_, args=(),
                                             **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def basic_discrete_SIR(G, p, initial_infecteds=None,
@@ -740,7 +740,7 @@ def basic_discrete_SIR(G, p, initial_infecteds=None,
                         rho, tmin, tmax, return_full_data, sim_kwargs=sim_kwargs)
 
 
-[docs]
+ 
 
 
 def basic_discrete_SIS(G, p, initial_infecteds=None, rho=None,
@@ -873,7 +873,7 @@ def basic_discrete_SIS(G, p, initial_infecteds=None, rho=None,
                                             **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def percolate_network(G, p):
@@ -947,7 +947,7 @@ def _edge_exists_(u, v, H):
     return H.has_edge(u, v)
 
 
-[docs]
+ 
 
 
 def percolation_based_discrete_SIR(G, p,
@@ -1053,7 +1053,7 @@ def percolation_based_discrete_SIR(G, p,
                         sim_kwargs=sim_kwargs)
 
 
-[docs]
+ 
 
 
 def estimate_SIR_prob_size(G, p):
@@ -1110,7 +1110,7 @@ def estimate_SIR_prob_size(G, p):
     return returnval, returnval
 
 
-[docs]
+ 
 
 
 def directed_percolate_network(G, tau, gamma, weights=True):
@@ -1287,7 +1287,7 @@ def _in_component_(G, target):
     return source_nodes
 
 
-[docs]
+ 
 
 
 def get_infected_nodes(G, tau, gamma, initial_infecteds=None,
@@ -1378,7 +1378,7 @@ def get_infected_nodes(G, tau, gamma, initial_infecteds=None,
     return infected_nodes
 
 
-[docs]
+ 
 
 
 def estimate_directed_SIR_prob_size(G, tau, gamma):
@@ -1428,7 +1428,7 @@ def estimate_directed_SIR_prob_size(G, tau, gamma):
     return estimate_SIR_prob_size_from_dir_perc(H)
 
 
-[docs]
+ 
 
 
 def estimate_SIR_prob_size_from_dir_perc(H):
@@ -1475,7 +1475,7 @@ def estimate_SIR_prob_size_from_dir_perc(H):
     return PE, AR
 
 
-[docs]
+ 
 
 
 def estimate_nonMarkov_SIR_prob_size_with_timing(G,
@@ -1555,7 +1555,7 @@ def estimate_nonMarkov_SIR_prob_size_with_timing(G,
     return estimate_SIR_prob_size_from_dir_perc(H)
 
 
-[docs]
+ 
 
 
 def estimate_nonMarkov_SIR_prob_size(G, xi, zeta, transmission):
@@ -1631,7 +1631,7 @@ def estimate_nonMarkov_SIR_prob_size(G, xi, zeta, transmission):
     return estimate_SIR_prob_size_from_dir_perc(H)
 
 
-[docs]
+ 
 
 
 def nonMarkov_directed_percolate_network_with_timing(G,
@@ -1720,7 +1720,7 @@ def nonMarkov_directed_percolate_network_with_timing(G,
     return H
 
 
-[docs]
+ 
 
 
 def nonMarkov_directed_percolate_network(G, xi, zeta, transmission):
@@ -1971,7 +1971,7 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
     return trans_delay, duration
 
 
-[docs]
+ 
 
 
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
@@ -2124,7 +2124,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   sim_kwargs=sim_kwargs)
 
 
-[docs]
+ 
 
 
 def fast_nonMarkov_SIR(G, trans_time_fxn=None,
@@ -2668,7 +2668,7 @@ def _process_rec_SIS_(time, node, times, recovery_times, S, I, status):
     status[node] = 'S'
 
 
-[docs]
+ 
 
 
 def fast_SIS(G, tau, gamma, initial_infecteds=None, rho=None, tmin=0, tmax=100,
@@ -2812,7 +2812,7 @@ def fast_SIS(G, tau, gamma, initial_infecteds=None, rho=None, tmin=0, tmax=100,
                                             **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def fast_nonMarkov_SIS(G, trans_time_fxn=None, rec_time_fxn=None,
@@ -3008,7 +3008,7 @@ def fast_nonMarkov_SIS(G, trans_time_fxn=None, rec_time_fxn=None,
 #####Now dealing with Gillespie code#####
 
 
-[docs]
+ 
 
 
 def Gillespie_SIR(G, tau, gamma, initial_infecteds=None,
@@ -3274,7 +3274,7 @@ def Gillespie_SIR(G, tau, gamma, initial_infecteds=None,
                                             **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def Gillespie_SIS(G, tau, gamma, initial_infecteds=None, rho=None, tmin=0,
@@ -3497,7 +3497,7 @@ def Gillespie_SIS(G, tau, gamma, initial_infecteds=None, rho=None, tmin=0,
         return EoN.Simulation_Investigation(G, node_history, possible_statuses=['S', 'I'], **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def Gillespie_complex_contagion(G, rate_function, transition_choice,
@@ -3750,7 +3750,7 @@ def Gillespie_complex_contagion(G, rate_function, transition_choice,
         return EoN.Simulation_Investigation(G, node_history, possible_statuses=return_statuses, **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def Gillespie_Arbitrary(G, spontaneous_transition_graph,
@@ -3772,7 +3772,7 @@ def Gillespie_Arbitrary(G, spontaneous_transition_graph,
                                       **sim_kwargs)
 
 
-[docs]
+ 
 
 
 def Gillespie_simple_contagion(G, spontaneous_transition_graph,
