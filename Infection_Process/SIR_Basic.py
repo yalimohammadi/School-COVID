@@ -534,7 +534,7 @@ def discrete_SIR(G, test_transmission=_simple_test_transmission_, args=(),
     :Returns:
 
 
-    **t, S, I, R** numpy arrays
+    **t, S, I, T, R** numpy arrays
 
     Or ``if return_full_data is True`` returns
 
@@ -551,7 +551,7 @@ def discrete_SIR(G, test_transmission=_simple_test_transmission_, args=(),
         import EoN
         import matplotlib.pyplot as plt
         G = nx.fast_gnp_random_graph(1000,0.002)
-        t, S, I, R = EoN.discrete_SIR(G, args = (0.6,),
+        t, S, I, T, R = EoN.discrete_SIR(G, args = (0.6,),
                                             initial_infecteds=range(20))
         plt.plot(t,I)
 
@@ -704,7 +704,7 @@ def basic_discrete_SIR(G, p, initial_infecteds=None,
 
     if return_full_data is False returns
 
-        **t, S, I, R**    numpy arrays
+        **t, S, I, T, R**    numpy arrays
 
         these numpy arrays give all the times observed and the number
         in each state at each time.
@@ -726,7 +726,7 @@ def basic_discrete_SIR(G, p, initial_infecteds=None,
         import EoN
         import matplotlib.pyplot as plt
         G = nx.fast_gnp_random_graph(1000,0.002)
-        t, S, I, R = EoN.basic_discrete_SIR(G, 0.6)
+        t, S, I, T, R = EoN.basic_discrete_SIR(G, 0.6)
         plt.plot(t,S)
 
 
@@ -890,7 +890,7 @@ def percolation_based_discrete_SIR(G, p,
 
     :Returns:
 
-    **t, S, I, R** numpy arrays
+    **t, S, I, T, R** numpy arrays
 
     OR if ``return_full_data is True``:
 
@@ -907,7 +907,7 @@ def percolation_based_discrete_SIR(G, p,
         import EoN
         import matplotlib.pyplot as plt
         G = nx.fast_gnp_random_graph(1000,0.002)
-        t, S, I, R = EoN.percolation_based_discrete_SIR(G, p)
+        t, S, I, T, R = EoN.percolation_based_discrete_SIR(G, p)
         plt.plot(t,S)
 
     This is equivalent to basic_discrete_epidemic (but many simulations
@@ -1671,7 +1671,7 @@ def _find_trans_and_rec_delays_SIR_(node, sus_neighbors, trans_time_fxn,
     return trans_delay, rec_delay
 
 
-def _process_trans_SIR_(time, G, source, target, times, S, I, R, Q, status,
+def _process_trans_SIR_(time, G, source, target, times, S, I, T, R, Q, status,
                         rec_time, pred_inf_time, transmissions,
                         trans_and_rec_time_fxn,
                         trans_and_rec_time_args=()):
@@ -1688,7 +1688,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, I, R, Q, status,
         node receiving transmission.
     times : list
         list of times at which events have happened
-    S, I, R : lists
+    S, I, T, R : lists
         lists of numbers of nodes of each status at each time
     Q : myQueue
         the queue of events
@@ -1742,12 +1742,12 @@ def _process_trans_SIR_(time, G, source, target, times, S, I, R, Q, status,
         rec_time[target] = time + rec_delay
         if rec_time[target] <= Q.tmax:
             Q.add(rec_time[target], _process_rec_SIR_,
-                  args=(target, times, S, I, R, status))
+                  args=(target, times, S, I, T, R, status))
         for v in trans_delay:
             inf_time = time + trans_delay[v]
             if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
                 Q.add(inf_time, _process_trans_SIR_,
-                      args=(G, target, v, times, S, I, R, Q,
+                      args=(G, target, v, times, S, I, T, R, Q,
                             status, rec_time, pred_inf_time,
                             transmissions, trans_and_rec_time_fxn,
                             trans_and_rec_time_args
@@ -1756,7 +1756,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, I, R, Q, status,
                 pred_inf_time[v] = inf_time
 
 
-def _process_rec_SIR_(time, node, times, S, I, R, status):
+def _process_rec_SIR_(time, node, times, S, I, T, R, status):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
 
@@ -1766,7 +1766,7 @@ def _process_rec_SIR_(time, node, times, S, I, R, status):
             has details on node and time
         times : list
             list of times at which events have happened
-        S, I, R : lists
+        S, I, T, R : lists
             lists of numbers of nodes of each status at each time
         status : dict
             dictionary giving status of each node
@@ -1789,6 +1789,10 @@ def _process_rec_SIR_(time, node, times, S, I, R, status):
     I.append(I[-1] - 1)  # one less infected
     R.append(R[-1] + 1)  # one more recovered
     status[node] = 'R'
+
+
+
+
 
 
 def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rate_fxn):
@@ -1918,7 +1922,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
 
     :Returns:
 
-    **times, S, I, R** numpy arrays
+    **times, S, I, T, R** numpy arrays
 
     Or if ``return_full_data is True``
 
@@ -1940,7 +1944,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
         initial_size = 10000
         gamma = 1.
         tau = 0.3
-        t, S, I, R = EoN.fast_SIR(G, tau, gamma,
+        t, S, I, T, R = EoN.fast_SIR(G, tau, gamma,
                                     initial_infecteds = range(initial_size))
 
         plt.plot(t, I)
@@ -2126,7 +2130,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
     :Returns:
 
-    **times, S, I, R** numpy arrays
+    **times, S, I, T, R** numpy arrays
 
     Or if ``return_full_data is True``
 
@@ -2163,7 +2167,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         tau = 0.3
         initial_inf_count = 100
 
-        t, S, I, R = EoN.fast_nonMarkov_SIR(G,
+        t, S, I, T, R = EoN.fast_nonMarkov_SIR(G,
                                 trans_time_fxn=trans_time_fxn,
                                 rec_time_fxn=rec_time_fxn,
                                 trans_time_args=(tau,),
@@ -2215,12 +2219,12 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         initial_infecteds = [initial_infecteds]
     # else it is assumed to be a list of nodes.
 
-    times, S, I, R = ([tmin], [G.order()], [0], [0])
+    times, S, I, T, R = ([tmin], [G.order()], [0], [0], [0])
     transmissions = []
 
     for u in initial_infecteds:
         pred_inf_time[u] = tmin
-        Q.add(tmin, _process_trans_SIR_, args=(G, None, u, times, S, I, R, Q,
+        Q.add(tmin, _process_trans_SIR_, args=(G, None, u, times, S, I, T, R, Q,
                                                status, rec_time,
                                                pred_inf_time, transmissions,
                                                trans_and_rec_time_fxn,
@@ -2243,10 +2247,10 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     S = S[len(initial_infecteds):]
     I = I[len(initial_infecteds):]
     R = R[len(initial_infecteds):]
-
+    T = T[len(initial_infecteds):]
     if not return_full_data:
         return np.array(times), np.array(S), np.array(I), \
-               np.array(R)
+               np.array(T), np.array(R)
     else:
         # strip pred_inf_time and rec_time down to just the values for nodes
         # that became infected
@@ -2261,7 +2265,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         if sim_kwargs is None:
             sim_kwargs = {}
         return EoN.Simulation_Investigation(G, node_history, transmissions,
-                                            possible_statuses=['S', 'I', 'R'],
+                                            possible_statuses=['S', 'I', 'T', 'R'],
                                             **sim_kwargs)
 
 
@@ -2270,6 +2274,40 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 
 
+#######OUR CODE STARTS HERE
+
+def _process_test_SIR_(time, node, times, S, I, T, R, status):
+    r'''
+    :Arguments:
+
+        event : event
+            has details on node and time
+        times : list
+            list of times at which events have happened
+        S, I, T, R : lists
+            lists of numbers of nodes of each status at each time
+        status : dict
+            dictionary giving status of each node
+
+
+    :Returns:
+        :
+        Nothing
+
+    MODIFIES
+    ----------
+    status : updates status of newly recovered node
+    times : appends time of event
+    S : appends new S (same as last)
+    I : appends new I (decreased by 1)
+    R : appends new R (increased by 1)
+    '''
+    times.append(time)
+    S.append(S[-1])  # no change to number susceptible
+    I.append(I[-1] - 1)  # one less infected
+    T.append(T[-1] + 1)  # one more tested
+    R.append(R[-1])  # no change to number recovered
+    status[node] = 'T'
 
 
 

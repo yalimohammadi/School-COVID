@@ -17,15 +17,15 @@ def plot_simple_SIR(t,S,I,R,alpha=.1,last=True):
 
 def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=10):
     for i in range(num_sim-1):
-        t,S,I,R=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",rho=initial_fraction_infected)
+        t,S,I,T,R=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",rho=initial_fraction_infected)
         plot_simple_SIR(t, S, I, R,last=False)
 
-    t, S, I, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+    t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                               rho=initial_fraction_infected)
     plot_simple_SIR(t, S, I, R)
     return t,S,I,R
 
 
 school = School(name="LA1",  num_grades=4,cohort_sizes=15,num_cohort=10)
-t,S,I,R = SIR_on_weighted_Graph(school.network)
+t,S,I,T,R = SIR_on_weighted_Graph(school.network)
 # plot_simple_SIR(t,S,I,R)
