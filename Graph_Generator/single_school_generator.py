@@ -65,7 +65,7 @@ class School:
 
         intra_cohort_network = nx.stochastic_block_model(grade_sizes, probs, seed=0)
 
-        school_network=nx.Graph()
+        school_network = nx.Graph()
         for grade in self.list_grades:
             for c in grade.classes:
                 school_network=nx.disjoint_union(school_network, c.network)
