@@ -21,6 +21,7 @@ class Cohort:
                 G.update([(e1,e2,{"weight": high_infection_rate} )for (e1,e2) in es] )
         return G
 
+
 class Grade:
     def __init__(self, grade_level, num_cohorts,cohort_size):
         self.grade_level = grade_level
@@ -51,7 +52,7 @@ class School:
     def generate_grades(self,num_grades,num_cohorts,cohort_size):
         list_grades=[]
         for i in range(num_grades):
-            new_grade= Grade(i, num_cohorts,cohort_size)
+            new_grade = Grade(i, num_cohorts,cohort_size)
             list_grades.append(new_grade)
         return list_grades
 
