@@ -69,6 +69,10 @@ class myQueue(object):
         r'''this will allow us to use commands like ``while Q:`` '''
         return len(self._Q_)
 
+    def current_time(self):
+        t, counter, function, args = heapq.nsmallest(1, self._Q_)
+        return t
+
 
 # from sortedcontainers import SortedList
 #
@@ -2116,9 +2120,15 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     # Note that when finally infected, pred_inf_time is correct
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
-
+    test_time = tmin
     while Q:  # all the work is done in this while loop.
-        Q.pop_and_run()
+        cur_time = Q.current_time()
+        test_time = test_time +1
+        if test_time <= cur_time:
+            testing_strategy(Q) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+        else:
+            Q.pop_and_run()
+
 
     # the initial infections were treated as ordinary infection events at
     # time 0.
@@ -2156,6 +2166,12 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 
 #######OUR CODE STARTS HERE
+
+
+
+def testing_strategy(Q):
+
+
 
 
 def _process_trans_SIR_(time, G, source, target, times, S, I, T, R, Q, status,
