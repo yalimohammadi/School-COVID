@@ -41,7 +41,7 @@ class School:
         self.num_grades = num_grades
         self.cohort_size=cohort_sizes
         self.num_cohort= num_cohort
-        self. list_grades= self.generate_grades(num_grades,num_cohort,cohort_sizes)
+        self.list_grades= self.generate_grades(num_grades,num_cohort,cohort_sizes)
         self.network = self.generate_school_network(p_c=.1,p_g=.02)
 
 

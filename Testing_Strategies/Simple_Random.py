@@ -1,4 +1,5 @@
 import  random
+from Graph_Generator.single_school_generator import School
 import numbers as np
 
 
