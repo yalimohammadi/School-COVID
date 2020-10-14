@@ -108,7 +108,7 @@ class School:
         return school_network
 
 
-# example:
+
 school = School(name="LA1",  num_grades=4,cohort_sizes=15,num_cohort=10)
 print(school.network[0])
 print(school.network.number_of_nodes())
