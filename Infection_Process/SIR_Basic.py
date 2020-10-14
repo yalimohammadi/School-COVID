@@ -70,7 +70,7 @@ class myQueue(object):
         return len(self._Q_)
 
     def current_time(self):
-        t, counter, function, args = heapq.nsmallest(1, self._Q_)
+        t, _, _, _ = heapq.nsmallest(1, self._Q_)
         return t
 
 
@@ -2123,7 +2123,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     test_time = tmin
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
-        test_time = test_time +1
+        test_time = test_time + 1 #change this
         if test_time <= cur_time:
             testing_strategy(Q) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
         else:
