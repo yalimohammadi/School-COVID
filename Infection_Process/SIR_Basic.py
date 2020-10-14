@@ -70,7 +70,8 @@ class myQueue(object):
         return len(self._Q_)
 
     def current_time(self):
-        t, _, _, _ = heapq.nsmallest(1, self._Q_)
+        t = heapq.nsmallest(1, self._Q_)[0][0]
+        # print(t)
         return t
 
 
@@ -1357,7 +1358,9 @@ def estimate_nonMarkov_SIR_prob_size_with_timing(G,
                                                  trans_time_fxn,
                                                  rec_time_fxn,
                                                  trans_time_args=(),
-                                                 rec_time_args=()):
+                                                 rec_time_args=(),
+
+                                                 ):
     '''
     estimates probability and size for user-input transmission and recovery time functions.
 
@@ -1736,7 +1739,7 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
 
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
              rho=None, tmin=0, tmax=float('Inf'), transmission_weight=None,
-             recovery_weight=None, return_full_data=False, sim_kwargs=None):
+             recovery_weight=None, return_full_data=False, sim_kwargs=None, all_test_times=[], test_args=None):
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
@@ -1864,7 +1867,9 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   initial_recovereds=initial_recovereds,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
-                                  sim_kwargs=sim_kwargs)
+                                  sim_kwargs=sim_kwargs, all_test_times=all_test_times,
+                                  test_args=test_args
+                                  )
     else:
         # the transmission rate is tau for all edges.  We can use this
         # to speed up the code.
@@ -1896,7 +1901,8 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        initial_infecteds=None,
                        initial_recovereds=None,
                        rho=None, tmin=0, tmax=float('Inf'),
-                       return_full_data=False, sim_kwargs=None):
+                       return_full_data=False, sim_kwargs=None,
+                       all_test_times=[], test_args=None):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
@@ -2083,6 +2089,9 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
     # now we define the initial setup.
     status = defaultdict(lambda: 'S')  # node status defaults to 'S'
+    for v in G.nodes():
+        status[v]='S'
+
     rec_time = defaultdict(lambda: tmin - 1)  # node recovery time defaults to -1
     if initial_recovereds is not None:
         for node in initial_recovereds:
@@ -2107,9 +2116,10 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     times, S, I, T, R = ([tmin], [G.order()], [0], [0], [0])
     transmissions = []
 
+    status[-1]="I" # -1 is dummy source
     for u in initial_infecteds:
         pred_inf_time[u] = tmin
-        Q.add(tmin, _process_trans_SIR_, args=(G, None, u, times, S, I, T, R, Q,
+        Q.add(tmin, _process_trans_SIR_, args=(G, -1, u, times, S, I, T, R, Q,
                                                status, rec_time,
                                                pred_inf_time, transmissions,
                                                trans_and_rec_time_fxn,
@@ -2120,12 +2130,20 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     # Note that when finally infected, pred_inf_time is correct
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
-    test_time = tmin
+
+    all_test_times=[i+tmin for i in all_test_times] # calibrate with min simulation time
+    cur_test_time = tmax + 10
+    if len(all_test_times) > 0:
+        cur_test_time = all_test_times.pop(0)
+
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
-        test_time = test_time + 1 #change this
-        if test_time <= cur_time:
-            testing_strategy(Q) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+        if cur_test_time < cur_time:
+            testing_strategy(cur_test_time, times, S, I, T, R, status,test_args) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+            if len(all_test_times)>0:
+                cur_test_time = all_test_times.pop(0)
+            else:
+                cur_test_time = tmax + 10
         else:
             Q.pop_and_run()
 
@@ -2167,9 +2185,23 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 #######OUR CODE STARTS HERE
 
+from Testing_Strategies.Simple_Random import fully_random_test
 
+def testing_strategy(time, times, S, I, T, R, status,test_prob):
 
-def testing_strategy(Q):
+    to_test=fully_random_test(test_prob, status)
+    new_positive=0
+    for node in to_test:
+        if status[node] == 'I':
+            status[node] = 'T'
+            new_positive+=1
+
+    times.append(time)
+    S.append(S[-1])  # no change to number susceptible
+    I.append(I[-1])  # no change to number infected
+    R.append(R[-1])  # no change to number recovered
+    T.append(T[-1] + new_positive)  # one more infected tested
+
 
 
 
@@ -2298,41 +2330,7 @@ def _process_rec_SIR_(time, node, times, S, I, T, R, status):
 
 
 
-def _process_test_SIR_(time, node, times, S, I, T, R, status):
-    r'''
-    :Arguments:
 
-        event : event
-            has details on node and time
-        times : list
-            list of times at which events have happened
-        S, I, T, R : lists
-            lists of numbers of nodes of each status at each time
-        status : dict
-            dictionary giving status of each node
-
-
-    :Returns:
-        :
-        Nothing
-
-    MODIFIES
-    ----------
-    status : updates status of newly recovered node
-    times : appends time of event
-    S : appends new S (same as last)
-    I : appends new I (decreased by 1)
-    R : appends new R (increased by 1)
-    '''
-    times.append(time)
-
-    if status[node] == 'I':
-        status[node] = 'T'
-        T.append(T[-1] + 1)  # one more infected tested
-
-    S.append(S[-1])  # no change to number susceptible
-    I.append(I[-1])  # no change to number infected
-    R.append(R[-1])  # no change to number recovered
 
 
 
