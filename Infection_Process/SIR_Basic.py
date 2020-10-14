@@ -1739,7 +1739,8 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
 
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
              rho=None, tmin=0, tmax=float('Inf'), transmission_weight=None,
-             recovery_weight=None, return_full_data=False, sim_kwargs=None, all_test_times=[], test_args=None):
+             recovery_weight=None, return_full_data=False, sim_kwargs=None,
+             all_test_times=[], test_args=None,test_func=None):
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
@@ -1886,7 +1887,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   initial_recovereds=initial_recovereds,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
-                                  sim_kwargs=sim_kwargs)
+                                  sim_kwargs=sim_kwargs,test_func=test_func)
 
 
 
@@ -1902,7 +1903,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        initial_recovereds=None,
                        rho=None, tmin=0, tmax=float('Inf'),
                        return_full_data=False, sim_kwargs=None,
-                       all_test_times=[], test_args=None):
+                       all_test_times=[], test_args=None, test_func=None):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
@@ -2139,7 +2140,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
         if cur_test_time < cur_time:
-            testing_strategy(cur_test_time, times, S, I, T, R, status,test_args) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+            testing_strategy(cur_test_time, times, S, I, T, R, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if len(all_test_times)>0:
                 cur_test_time = all_test_times.pop(0)
             else:
@@ -2185,11 +2186,10 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 #######OUR CODE STARTS HERE
 
-from Testing_Strategies.Simple_Random import fully_random_test
 
-def testing_strategy(time, times, S, I, T, R, status,test_cap):
+def testing_strategy(time, times, S, I, T, R, status,test_args,test_func):
 
-    to_test=fully_random_test(test_cap, status)
+    to_test=test_func(*test_args, status)
     new_positive=0
     for node in to_test:
         if status[node] == 'I':

@@ -40,10 +40,11 @@ class School:
         self.size = num_grades*num_cohort*cohort_sizes
         self.num_grades = num_grades
         self.cohort_size=cohort_sizes
-        self.num_cohort= num_cohort
+        self.num_cohort= num_cohort # num cohort in one grade
         self.list_grades= self.generate_grades(num_grades,num_cohort,cohort_sizes)
-        self.network = self.generate_school_network(p_c=.1,p_g=.02)
         self.cohorts_list=[]
+        self.network = self.generate_school_network(p_c=.1,p_g=.02)
+
 
     def generate_grades(self,num_grades,num_cohorts,cohort_size):
         list_grades=[]

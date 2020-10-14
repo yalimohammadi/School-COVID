@@ -21,7 +21,8 @@ def fully_random_test(test_cap,status):
 
 def random_from_cohorts(school,test_cap,status):
     to_process_test=[]
-    for grade in school.list_grades:
-        for cohort in grade.classes:
+    test_cap_c=int(test_cap/(school.num_cohort*school.num_grades))
+    for cohort in school.cohorts_list:
+        to_process_test+=fully_random_test(test_cap_c,status[cohort])
 
     return to_process_test
