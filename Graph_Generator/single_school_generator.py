@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 import random
 
-class Class:
+class Cohort:
     def __init__(self, grade, size):
         self.grade = grade
         self.size = size
@@ -29,7 +29,7 @@ class Grade:
     def generate_grade(self,num_cohorts,cohort_size):
         list_classes=[]
         for i in range(num_cohorts):
-            new_class=Class(self.grade_level,cohort_size)
+            new_class=Cohort(self.grade_level, cohort_size)
             list_classes.append(new_class)
         return list_classes
 

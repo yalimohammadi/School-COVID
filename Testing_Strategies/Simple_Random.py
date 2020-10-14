@@ -1,9 +1,6 @@
 import  random
 import numbers as np
 
-def create_test_times(tmin,tmax,num_tests):
-    return np.linspace(tmin,tmax,num_tests)
-
 
 def fully_random_test(test_cap,status):
     testable = []
@@ -17,5 +14,11 @@ def fully_random_test(test_cap,status):
         to_process_test=testable
     else:
         to_process_test = random.sample(testable, test_cap)
+
+    return to_process_test
+
+
+def random_from_cohorts(school,test_cap,status):
+    to_process_test=[]
 
     return to_process_test
