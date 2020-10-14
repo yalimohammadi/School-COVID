@@ -2187,9 +2187,9 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 from Testing_Strategies.Simple_Random import fully_random_test
 
-def testing_strategy(time, times, S, I, T, R, status,test_prob):
+def testing_strategy(time, times, S, I, T, R, status,test_cap):
 
-    to_test=fully_random_test(test_prob, status)
+    to_test=fully_random_test(test_cap, status)
     new_positive=0
     for node in to_test:
         if status[node] == 'I':
