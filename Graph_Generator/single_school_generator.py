@@ -43,7 +43,7 @@ class School:
         self.num_cohort= num_cohort
         self.list_grades= self.generate_grades(num_grades,num_cohort,cohort_sizes)
         self.network = self.generate_school_network(p_c=.1,p_g=.02)
-
+        self.cohorts_list=[]
 
     def generate_grades(self,num_grades,num_cohorts,cohort_size):
         list_grades=[]
@@ -68,7 +68,10 @@ class School:
         school_network = nx.Graph()
         for grade in self.list_grades:
             for c in grade.classes:
+                old=school_network.number_of_nodes()
                 school_network=nx.disjoint_union(school_network, c.network)
+
+                self.cohorts_list.append(list(range(old,school_network.number_of_nodes())))
 
 
         school_network.add_weighted_edges_from(intra_cohort_network.edges.data("weight", default=intra_cohort_infection_rate))
