@@ -11,7 +11,7 @@ class Cohort:
 
     def generate_class(self, cohort_size, high_risk_probability = .1, high_infection_rate = 2., low_infection_rate =.5):
         G = nx.complete_graph(cohort_size)
-        G=G.to_directed()
+        G = G.to_directed()
         G.add_weighted_edges_from(G.edges.data('weight', default=low_infection_rate))
         for v in G.nodes():
             # generate high risk students
