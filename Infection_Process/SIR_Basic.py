@@ -1869,8 +1869,9 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
                                   sim_kwargs=sim_kwargs, all_test_times=all_test_times,
-                                  test_args=test_args
-                                  )
+                                  test_args=test_args,test_func=test_func)
+
+
     else:
         # the transmission rate is tau for all edges.  We can use this
         # to speed up the code.
@@ -1887,7 +1888,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   initial_recovereds=initial_recovereds,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
-                                  sim_kwargs=sim_kwargs,test_func=test_func)
+                                  sim_kwargs=sim_kwargs)
 
 
 
@@ -1903,7 +1904,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        initial_recovereds=None,
                        rho=None, tmin=0, tmax=float('Inf'),
                        return_full_data=False, sim_kwargs=None,
-                       all_test_times=[], test_args=None, test_func=None):
+                       all_test_times=[], test_args=(), test_func=None):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
