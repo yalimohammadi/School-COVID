@@ -3,11 +3,11 @@ import numpy as np
 import random
 
 class Cohort:
-    def __init__(self, grade, size):
+    def __init__(self, grade, size,high_risk_probability=.1, high_infection_rate=2.,low_infection_rate=.5):
         self.grade = grade
         self.size = size
         self.high_risk_students = []
-        self.network = self.generate_class( size )
+        self.network = self.generate_class( size,high_risk_probability,high_infection_rate,low_infection_rate)
 
     def generate_class(self, cohort_size, high_risk_probability = .1, high_infection_rate = 2., low_infection_rate =.5):
         G = nx.complete_graph(cohort_size)
@@ -35,7 +35,7 @@ class Grade:
 
 
 class School:
-    def __init__(self, name, num_grades,cohort_sizes,num_cohort):
+    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers= 20):
         self.name = name
         self.size = num_grades*num_cohort*cohort_sizes
         self.num_grades = num_grades
@@ -43,6 +43,8 @@ class School:
         self.num_cohort= num_cohort # num cohort in one grade
         self.list_grades= self.generate_grades(num_grades,num_cohort,cohort_sizes)
         self.cohorts_list=[]
+        self.teachers = self.generate_teachers(num_teachers=num_teachers)
+        self.teachers_id = []
         self.network = self.generate_school_network(p_c=.1,p_g=.02)
 
 
@@ -52,6 +54,19 @@ class School:
             new_grade= Grade(i, num_cohorts,cohort_size)
             list_grades.append(new_grade)
         return list_grades
+
+    def generate_teachers(self,num_teachers,infection_rate_between_teachers=0.05):
+        # teachers are like a classroom with no high risk student
+        teachrs=Cohort(size=num_teachers,grade="teacher",high_risk_probability=0.0, low_infection_rate=infection_rate_between_teachers)
+        return teachrs
+    def assing_teacher_to_cohort(self,teacher,cohort_ids, teacher_student_infection_rate=.1,student_teacher_infection_rate=.1):
+        new_edges=[]
+        for s in cohort_ids:
+            new_edges.append((teacher,s,{"weight": teacher_student_infection_rate}))
+            new_edges.append((s,teacher,{"weight": student_teacher_infection_rate}))
+
+        self.network.add_weighted_edges_from(new_edges)
+
 
     def generate_school_network(self, p_c,p_g,Cohort_Size= 15,Num_Cohorts=10, Num_Grades=4,intra_cohort_infection_rate=.1):
         # each school has a few grades and each grades has a number of cohorts
@@ -67,6 +82,10 @@ class School:
         intra_cohort_network = nx.stochastic_block_model(grade_sizes, probs, seed=0)
 
         school_network = nx.Graph()
+        old = school_network.number_of_nodes()
+        school_network=nx.disjoint_union(school_network, self.teachers.network)
+        self.teachers_id=list(range(old,school_network.number_of_nodes()))
+
         for grade in self.list_grades:
             for c in grade.classes:
                 old=school_network.number_of_nodes()
@@ -75,11 +94,21 @@ class School:
                 self.cohorts_list.append(list(range(old,school_network.number_of_nodes())))
 
 
+
+        for t in self.teachers_id:
+            if t*3+3<self.num_cohort*self.num_grades:
+                # assignments finished
+                break
+            self.assing_teacher_to_cohort(t,self.cohorts_list[t*3])
+            self.assing_teacher_to_cohort(t,self.cohorts_list[t*3+1])
+            self.assing_teacher_to_cohort(t,self.cohorts_list[t*3+2])
+
         school_network.add_weighted_edges_from(intra_cohort_network.edges.data("weight", default=intra_cohort_infection_rate))
         # print(school_network.edges.data)
         return school_network
 
 
 # example:
-# school = School(name="LA1",  num_grades=4,cohort_sizes=15,num_cohort=10)
-# print(school.network[0])
+school = School(name="LA1",  num_grades=4,cohort_sizes=15,num_cohort=10)
+print(school.network[0])
+print(school.network.number_of_nodes())
