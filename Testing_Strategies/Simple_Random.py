@@ -23,6 +23,9 @@ def random_from_cohorts(school,test_cap,status):
     to_process_test=[]
     test_cap_c=int(test_cap/(school.num_cohort*school.num_grades))
     for cohort in school.cohorts_list:
-        to_process_test+=fully_random_test(test_cap_c,status[cohort])
+        cohort_stat= dict((k, status[k]) for k in cohort )
+        cohort_selected_tests=fully_random_test(test_cap_c, cohort_stat)
+
+        to_process_test+=cohort_selected_tests
 
     return to_process_test
