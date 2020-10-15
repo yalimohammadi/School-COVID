@@ -3,13 +3,13 @@ import numpy as np
 import random
 
 class Cohort:
-    def __init__(self, grade, size,high_risk_probability=.1, high_infection_rate=2.,low_infection_rate=.5):
+    def __init__(self, grade, size,high_risk_probability=.1, high_infection_rate=5/7, low_infection_rate=5/7):
         self.grade = grade
         self.size = size
         self.high_risk_students = []
-        self.network = self.generate_class( size,high_risk_probability,high_infection_rate,low_infection_rate)
+        self.network = self.generate_class( size,high_risk_probability,high_infection_rate, low_infection_rate)
 
-    def generate_class(self, cohort_size, high_risk_probability = .1, high_infection_rate = 2., low_infection_rate =.5):
+    def generate_class(self, cohort_size, high_risk_probability =.1, high_infection_rate=5/7, low_infection_rate=5/7):
         G = nx.complete_graph(cohort_size)
         G = G.to_directed()
         G.add_weighted_edges_from(G.edges.data('weight', default=low_infection_rate))
@@ -36,7 +36,7 @@ class Grade:
 
 
 class School:
-    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers= 20):
+    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers= 60):
         self.name = name
         self.size = num_grades*num_cohort*cohort_sizes
         self.num_grades = num_grades
@@ -105,6 +105,9 @@ class School:
             self.assing_teacher_to_cohort(t,self.cohorts_list[t*3+2])
 
         school_network.add_weighted_edges_from(intra_cohort_network.edges.data("weight", default=intra_cohort_infection_rate))
+
+        #write code here, including weights according to intra_grade_infection_rate
+
         # print(school_network.edges.data)
         return school_network
 

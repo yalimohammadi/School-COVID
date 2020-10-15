@@ -6,7 +6,7 @@ import numbers as np
 def fully_random_test(test_cap,status):
     testable = []
     for v in status.keys():
-        if not( status[v]=="T"):
+        if not(status[v]=="T"):
             if random.uniform(0,1)<test_cap:
                 testable.append(v)
 

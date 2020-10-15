@@ -1,0 +1,50 @@
+p_c=[0.05,0.1,0.15,0.2]
+cg_scale=5
+p_g=p_c/cg_scale
+cohort_sizes=[10,15,20] #more fine grained later
+num_cohort= grade_size/cohort_sizes
+
+
+high_infection_rate=low_infection_rate=5/7
+teacher_student_infection_rate=3/7
+student_teacher_infection_rate=3/7
+infection_rate_between_teachers=1/7 #teachers are similar to cohorts, meaning they have a complete graph.
+intra_cohort_infection_rate=1/7
+intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
+
+
+
+total_students=2000 (fixed)
+total_teachers=60 (fixed)
+num_grades=4 (fixed)
+grade_size= total_students/num_grades (fixed) (We may later want to have different sizes for each grade)
+high_risk_probability=.1 (fixed, irrelevant for now)
+rho= 0.01 #initial fraction infected (fix this)
+tau= 1 #transmission rate per edge (fix this)
+gamma= 1 #recovery rate per node (fix this)
+
+
+
+
+
+
+
+
+Metric to compare different strategies:
+A) Infected
+1) Number of infected people in first week.
+2) Number of infected people in second week.
+3) Number of infected people in third week.
+4) Number of infected people in first month.
+5) Number of infected people in second month.
+
+6) Total infected throughout the entire process.
+
+
+B) Tested isolated
+1) Fraction of infected individuals that are tested.
+2) Average time between infection and identification through testing.
+
+
+C) Total school attendance
+1) Average number of days school missed per student.
