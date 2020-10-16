@@ -35,7 +35,7 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
         print(R[len(R)-1])
 
         t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
-                                     rho=initial_fraction_infected, all_test_times=np.linspace(0, 2, 10),
+                                     rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
                                      test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts)
         plot_simple_SIR(t, S, I, T, R)
         print(R[len(R) - 1])
@@ -50,20 +50,22 @@ total_students=2000
 num_grades=4
 num_teachers=60
 num_of_students_within_grade=int(total_students/num_grades)
-p_c=0.1 # [0.05,0.1,,0.2,0.4]
+p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=5 # [5,10]
 p_g=p_c/cg_scale
-high_infection_rate=low_infection_rate=5/7
-intra_cohort_infection_rate=1/7
+high_infection_rate=low_infection_rate=1/5
+scale=1/10
+intra_cohort_infection_rate=high_infection_rate*scale
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
-teacher_student_infection_rate=student_teacher_infection_rate=1/7
-infection_rate_between_teachers=1/7 #teachers are similar to cohorts, meaning they have a complete graph.
+teacher_student_infection_rate=student_teacher_infection_rate=high_infection_rate
+infection_rate_between_teachers=high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
 
 
 high_risk_probability=0 #(fixed, irrelevant for now)
-initial_fraction_infected= 0.01 #initial fraction infected (fix this)
+initial_fraction_infected= 0.001 #initial fraction infected (fix this)
 transmission_scale= 1 #transmission rate per edge (fix this)
-removal_rate= 1 #recovery rate per node (fix this)
+removal_rate = 1/14 #recovery rate per node (fix this)
+print(removal_rate)
 
 #number of days to recover =  time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
 #num_days_between_exposed_infection=Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
@@ -77,3 +79,61 @@ for cohort_sizes in [10]: #[10,15,20]
 
 # plot_simple_SIR(t,S,I,R)
 #print(T)
+
+
+
+
+#S I T
+
+#p
+
+#We want people within same cohort to get infected in rougly 1-3
+
+# Suspectible -- Exposed ----- Infected state-----Tested ------- Recovered
+
+#Suspectible ---- exposed , using contact rates.
+
+#scalar=1
+
+#within same cohort 1-3 exponential (5/7)
+#within same grade different cohort 3-7 exp(1/10)
+#different grade exp(1/35)
+
+
+
+#exposed---recover time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
+#infected--recover?
+
+
+#exposed---infected Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
+
+
+
+
+#1) Testing strategy: test people from infected cohort with high probability
+#change weights with respect to testing
+
+
+#2) Special testing for teachers. (later, sensitive to parameter values)
+
+#3) Plots for teachers and students separate.
+
+#4) Plots for number of cohorts infected.
+
+#5) Tranmissions to understand T-S or S-T (S-T,T-S)
+
+
+#COVID spreads first within the cohort and then goes to other cohort.
+#quarantine same cohort
+#test friends oustide cohort (contact tracing)
+
+
+#Baseline: FR vs RWC, RWC is better with your additional testing strategy attached.
+
+#Baseline: which is better: frequent tests with less people(40 per day) vs non frequent tests with more people (250 per 5 days)
+
+
+
+
+
+
