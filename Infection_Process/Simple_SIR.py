@@ -5,7 +5,7 @@ import numpy as np
 
 from Testing_Strategies import Simple_Random
 
-def plot_simple_SIR(t,S,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
+def plot_simple_SIR(t,S,E,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
 
 
     if last:
@@ -28,25 +28,25 @@ def plot_simple_SIR(t,S,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
 
 def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1):
     for i in range(num_sim):
-        t,S,I,T,R=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
+        t,S,E,I,T,R=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
                                rho=initial_fraction_infected, all_test_times = np.linspace(0,2,10),test_args=(100,),test_func=Simple_Random.fully_random_test,weighted_test=False)
-        plot_simple_SIR(t, S, I, T, R,last=False)
+        plot_simple_SIR(t, S, E, I, T, R,last=False)
         #print(R)
         print(R[len(R)-1])
 
-        t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+        t, S, E, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
                                      test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
-        plot_simple_SIR(t, S, I, T, R)
+        plot_simple_SIR(t, S, E, I, T, R)
         print(R[len(R) - 1])
         #
-        t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+        t, S, E, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
                                      test_args=(school, 100,),weighted_test=True)
-        plot_simple_SIR(t, S, I, T, R)
+        plot_simple_SIR(t, S, E, I, T, R)
         print(R[len(R) - 1])
 
-    return t,S,I,T,R
+    return t,S,E,I,T,R
 
 
 
@@ -58,8 +58,9 @@ num_of_students_within_grade=int(total_students/num_grades)
 p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=5 # [5,10]
 p_g=p_c/cg_scale
-high_infection_rate=low_infection_rate=1/5
-scale=1/10
+alpha=0.5
+high_infection_rate=low_infection_rate=1/7*alpha
+scale=1/5
 intra_cohort_infection_rate=high_infection_rate*scale
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
 teacher_student_infection_rate=student_teacher_infection_rate=high_infection_rate
@@ -69,7 +70,7 @@ infection_rate_between_teachers=high_infection_rate*scale #teachers are similar 
 high_risk_probability=0 #(fixed, irrelevant for now)
 initial_fraction_infected= 0.001 #initial fraction infected (fix this)
 transmission_scale= 1 #transmission rate per edge (fix this)
-removal_rate = 1/14 #recovery rate per node (fix this)
+removal_rate = 1/12 #recovery rate per node (fix this)
 print(removal_rate)
 
 #number of days to recover =  time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
@@ -80,7 +81,7 @@ for cohort_sizes in [10]: #[10,15,20]
     #school = School(name="LA1",  num_grades,cohort_sizes,num_cohort,num_teachers)
     school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers)
     print("school size", school.network.number_of_nodes())
-    t,S,I,T,R = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=1)
+    t,S,E,I,T,R = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=1)
 
 # plot_simple_SIR(t,S,I,R)
 #print(T)
@@ -106,8 +107,8 @@ for cohort_sizes in [10]: #[10,15,20]
 
 
 
-#exposed---recover time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
-#infected--recover?
+#infected---recover time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
+
 
 
 #exposed---infected Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
