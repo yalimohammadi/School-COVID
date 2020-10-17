@@ -29,17 +29,22 @@ def plot_simple_SIR(t,S,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
 def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1):
     for i in range(num_sim):
         t,S,I,T,R=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
-                               rho=initial_fraction_infected, all_test_times = np.linspace(0,2,10),test_args=(100,),test_func=Simple_Random.fully_random_test)
+                               rho=initial_fraction_infected, all_test_times = np.linspace(0,2,10),test_args=(100,),test_func=Simple_Random.fully_random_test,weighted_test=False)
         plot_simple_SIR(t, S, I, T, R,last=False)
         #print(R)
         print(R[len(R)-1])
 
         t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
-                                     test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts)
+                                     test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
         plot_simple_SIR(t, S, I, T, R)
         print(R[len(R) - 1])
-
+        #
+        t, S, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+                                     rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
+                                     test_args=(school, 100,),weighted_test=True)
+        plot_simple_SIR(t, S, I, T, R)
+        print(R[len(R) - 1])
 
     return t,S,I,T,R
 

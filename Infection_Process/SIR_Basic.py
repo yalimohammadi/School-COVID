@@ -169,7 +169,7 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
              rho=None, tmin=0, tmax=float('Inf'), transmission_weight=None,
              recovery_weight=None, return_full_data=False, sim_kwargs=None,
-             all_test_times=[], test_args=None,test_func=None):
+             all_test_times=[], test_args=None,test_func=None,weighted_test=True):
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
@@ -298,7 +298,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
                                   sim_kwargs=sim_kwargs, all_test_times=all_test_times,
-                                  test_args=test_args,test_func=test_func)
+                                  test_args=test_args,test_func=test_func,weighted_test=weighted_test)
 
 
     else:
@@ -333,7 +333,8 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        initial_recovereds=None,
                        rho=None, tmin=0, tmax=float('Inf'),
                        return_full_data=False, sim_kwargs=None,
-                       all_test_times=[], test_args=(), test_func=None):
+                       all_test_times=[], test_args=(), test_func=None,
+                       weighted_test=True):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
@@ -567,10 +568,24 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     if len(all_test_times) > 0:
         cur_test_time = all_test_times.pop(0)
 
+
+    if weighted_test:
+        school= test_args[0]
+        test_cap = test_args[1]
+        total_num_cohorts=school.num_grades*school.num_cohort
+        curr_weight = [1 for i in range(total_num_cohorts)]
+        next_weight = [1 for i in range(total_num_cohorts)]
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
+
         if cur_test_time < cur_time:
-            testing_strategy(cur_test_time, times, S, I, T, R, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+            if weighted_test:
+                curr_weight, next_weight= testing_strategy_with_weights(cur_test_time,
+                                                                               times, S, I, T, R, status, school, test_cap, curr_weight,next_weight)
+                print("next_weight",next_weight)
+                print("curr_weight",curr_weight)
+            else:
+                testing_strategy(cur_test_time, times, S, I, T, R, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if len(all_test_times)>0:
                 cur_test_time = all_test_times.pop(0)
             else:
@@ -631,6 +646,38 @@ def testing_strategy(time, times, S, I, T, R, status,test_args,test_func):
     I.append(I[-1])  # no change to number infected
     R.append(R[-1])  # no change to number recovered
     T.append(T[-1] + new_positive)  # one more infected tested
+
+
+from Testing_Strategies.Simple_Random import calculating_test_weights
+from Testing_Strategies.Simple_Random import random_from_cohorts
+
+def testing_strategy_with_weights(time, times, S, I, T, R, status,school,test_cap,curr_weight,next_weight):
+
+    total_num_cohorts=school.num_grades*school.num_cohort
+    second_next_weight = [1 for i in range(total_num_cohorts)]
+
+
+    to_test = random_from_cohorts(school,test_cap,status,curr_weight)
+
+    new_positive=0
+    new_positive_ids=[]
+    for node in to_test:
+        if status[node] == 'I':
+            status[node] = 'T'
+            new_positive+=1
+            new_positive_ids.append(node)
+
+    times.append(time)
+    S.append(S[-1])  # no change to number susceptible
+    I.append(I[-1])  # no change to number infected
+    R.append(R[-1])  # no change to number recovered
+    T.append(T[-1] + new_positive)  # one more infected tested
+
+    next_weight,second_next_weight=calculating_test_weights(school, new_positive_ids, next_weight, second_next_weight)
+
+    return next_weight,second_next_weight
+
+
 
 
 
