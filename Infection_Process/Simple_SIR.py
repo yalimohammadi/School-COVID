@@ -2,6 +2,7 @@ import Infection_Process.SIR_Basic as EoN
 import matplotlib.pyplot as plt
 from Graph_Generator.single_school_generator import School
 import numpy as np
+import networkx as nx
 
 from Testing_Strategies import Simple_Random
 
@@ -30,7 +31,7 @@ def print_infected_teachers(status):
 
 
 
-def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1):
+def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1) -> object:
     for i in range(num_sim):
         t,S,E,I,T,R,status=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
                                rho=initial_fraction_infected, all_test_times = np.linspace(0,119,120),test_args=(100,),test_func=Simple_Random.fully_random_test,weighted_test=False)
@@ -68,7 +69,7 @@ cg_scale=1 #5 # [5,10]
 p_g=p_c*cg_scale
 alpha=1
 high_infection_rate=low_infection_rate=1*alpha
-scale=1
+scale=10
 intra_cohort_infection_rate=high_infection_rate*scale
 print(intra_cohort_infection_rate)
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
@@ -89,6 +90,9 @@ for cohort_sizes in [10]: #[10,15,20]
     #school = School(name="LA1",  num_grades,cohort_sizes,num_cohort,num_teachers)
     school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers)
     print("School Size=", school.network.number_of_nodes())
+    #plt.subplot(121)
+    #nx.draw(school.network, with_labels=True, font_weight='bold')
+    #plt.show()
     t,S,E,I,T,R = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=1)
 
 # plot_simple_SIR(t,S,I,R)

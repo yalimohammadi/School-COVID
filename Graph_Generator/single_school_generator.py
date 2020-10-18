@@ -45,7 +45,7 @@ class Grade:
 class School:
     def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers):
         self.name = name
-        self.size = num_grades*num_cohort*cohort_sizes
+        self.size = num_grades*num_cohort*cohort_sizes+num_teachers
         self.num_grades = num_grades
         self.cohort_size=cohort_sizes
         self.num_cohort= num_cohort # num cohort in one grade
@@ -77,7 +77,7 @@ class School:
 
         self.network.add_weighted_edges_from(new_edges)
 
-    def generate_school_network(self, p_c=1 / 7, p_g=1 / 35, Cohort_Size=15, Num_Cohorts=10, Num_Grades=4,
+    def generate_school_network(self, Cohort_Size, Num_Cohorts, Num_Grades,p_c=1/7, p_g=1/35,
                                     intra_cohort_infection_rate=.1, teacher_student_infection_rate=3 / 7,
                                     student_teacher_infection_rate=3 / 7):
 
