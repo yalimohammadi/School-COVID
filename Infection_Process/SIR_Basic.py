@@ -546,25 +546,35 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         initial_infecteds = [initial_infecteds]
     # else it is assumed to be a list of nodes.
 
-    times, S,E, I, T, R = ([tmin], [G.order()],[0], [0], [0], [0])
+    times, S, E, I, T, R = ([tmin], [G.order()],[0], [0], [0], [0])
     transmissions = []
 
     status[-1]="I" # -1 is dummy source
     for u in initial_infecteds:
-        pred_inf_time[u] = tmin
-        Q.add(tmin, _process_trans_SIR_, args=(G, -1, u, times, S,E, I, T, R, Q,
+        times.append(tmin+1)
+        S.append(S[-1] - 1)  # no change to number susceptible
+        I.append(I[-1])  # one less infected
+        E.append(E[-1] + 1)  #
+        T.append(T[-1])  # no change to number infected tested
+        R.append(R[-1])  # one more recovered
+        #print(S)
+        status[u] = 'E'
+        inf_time = 2  # weibull distribution
+        #pred_inf_time[u] = tmin + inf_time
+        Q.add(tmin+inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I, T, R, Q,
                                                status, rec_time,
                                                pred_inf_time, transmissions,
                                                trans_and_rec_time_fxn,
                                                trans_and_rec_time_args
                                                )
               )
+        pred_inf_time[u] = tmin + inf_time
 
     # Note that when finally infected, pred_inf_time is correct
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
 
-    all_test_times=[i+tmin for i in all_test_times] # calibrate with min simulation time
+    all_test_times=[i+tmin+3 for i in all_test_times] # calibrate with min simulation time
     cur_test_time = tmax + 10
     if len(all_test_times) > 0:
         cur_test_time = all_test_times.pop(0)
@@ -579,7 +589,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
 
-        if cur_test_time < cur_time:
+        if cur_test_time < tmin:#cur_time:
             if weighted_test:
                 curr_weight, next_weight= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I, T, R, status, school, test_cap, curr_weight,next_weight)
@@ -607,7 +617,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     T = T[len(initial_infecteds):]
     if not return_full_data:
         return np.array(times), np.array(S), np.array(E), np.array(I), \
-               np.array(T), np.array(R)
+               np.array(T), np.array(R),status
     else:
         # strip pred_inf_time and rec_time down to just the values for nodes
         # that became infected
@@ -742,13 +752,13 @@ def _process_trans_SIR_(time, G, source, target, times, S,E, I, T, R, Q, status,
 
     '''
 
-    if status[target] == 'S' or 'E': #and status[source] == 'I':  # nothing happens if already infected/tested.
+    if status[target] == 'E': #and status[source] == 'I':  # nothing happens if already infected/tested.
         status[target] = 'I' #status[target] = 'I'
         times.append(time)
         transmissions.append((time, source, target))
         S.append(S[-1])  # one less susceptible
         I.append(I[-1] + 1)  # one more infected
-        E.append(E[-1] -1)  #
+        E.append(E[-1] - 1)  #
         T.append(T[-1])  # no change to infected tested
         R.append(R[-1])  # no change to recovered
 
@@ -760,22 +770,22 @@ def _process_trans_SIR_(time, G, source, target, times, S,E, I, T, R, Q, status,
         rec_time[target] = time + rec_delay
         if rec_time[target] <= Q.tmax:
             Q.add(rec_time[target], _process_rec_SIR_,
-                  args=(target, times, S,E, I, T, R, status))
+                  args=(target, times, S, E, I, T, R, status))
         for v in trans_delay:
             inf_time = time + trans_delay[v]
             if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
                 Q.add(inf_time, _process_exp_SIR_,
-                      args=(G, target, v, times, S,E, I, T, R, Q,
+                      args=(G, target, v, times, S, E, I, T, R, Q,
                             status, rec_time, pred_inf_time,
                             transmissions, trans_and_rec_time_fxn,
                             trans_and_rec_time_args
                             )
                       )
-                pred_inf_time[v] = inf_time
 
 
 
-def _process_exp_SIR_(time, G, source, target, times, S,E, I, T, R, Q, status,
+
+def _process_exp_SIR_(time, G, source, target, times, S, E, I, T, R, Q, status,
                         rec_time, pred_inf_time, transmissions,
                         trans_and_rec_time_fxn,
                         trans_and_rec_time_args=()):
@@ -806,7 +816,7 @@ def _process_exp_SIR_(time, G, source, target, times, S,E, I, T, R, Q, status,
     I : appends new I (decreased by 1)
     R : appends new R (increased by 1)
     '''
-    if status[source] == 'I':
+    if status[source] == 'I' and status[target] == 'S':
         times.append(time)
         S.append(S[-1]-1)  # no change to number susceptible
         I.append(I[-1])  # one less infected
@@ -821,10 +831,11 @@ def _process_exp_SIR_(time, G, source, target, times, S,E, I, T, R, Q, status,
                         trans_and_rec_time_fxn,
                         trans_and_rec_time_args)
           )
+        pred_inf_time[target] = time+inf_time
 
 
 
-def _process_rec_SIR_(time, node, times, S,E, I, T, R, status):
+def _process_rec_SIR_(time, node, times, S, E, I, T, R, status):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
 
@@ -852,6 +863,7 @@ def _process_rec_SIR_(time, node, times, S,E, I, T, R, status):
     I : appends new I (decreased by 1)
     R : appends new R (increased by 1)
     '''
+    #if status[node] == 'I':
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
     I.append(I[-1] - 1)  # one less infected
