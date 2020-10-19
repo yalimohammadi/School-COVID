@@ -589,7 +589,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
 
-        if cur_test_time < tmin:#cur_time:
+        if cur_test_time < cur_time:
             if weighted_test:
                 curr_weight, next_weight= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I, T, R, status, school, test_cap, curr_weight,next_weight)
