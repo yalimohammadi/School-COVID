@@ -44,10 +44,7 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
 
         t, S, E, I, T, R,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
-                                     test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
-        #print("I= ", I)
-        #print("T= ", T)
-                                     test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=True)
+         test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=True)
         print("I= ", I)
         print("T= ", T)
         plot_simple_SIR(t, S, E, I, T, R)
