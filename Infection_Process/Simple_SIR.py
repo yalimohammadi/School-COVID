@@ -12,8 +12,9 @@ def plot_simple_SIR(t,S,E,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
     if last:
         plt.plot(t, I, label="Infected: Random within Cohort", alpha=alpha,color="r")
         #plt.plot(t, T, label="Infected Tested: Random within Cohort", alpha=alpha, color="r")
-        #plt.plot(t, S, label="S", alpha=alpha,color="g")
-        #plt.plot(t, R, label="R", alpha=alpha,color="b")
+        plt.plot(t, S, label="S", alpha=alpha,color="g")
+        plt.plot(t, R, label="R", alpha=alpha,color="b")
+
         plt.legend()
         plt.xlabel("time")
         plt.ylabel("number of people")
@@ -27,7 +28,7 @@ def plot_simple_SIR(t,S,E,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
 def print_infected_teachers(status):
     #for t in list(range(0, school.network.number_of_nodes())):
     for t in school.teachers_id:
-        print(t)
+        print("infected teacher id: ",t)
 
 
 
@@ -46,7 +47,7 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
                                      test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
         print("I= ", I)
         print("T= ", T)
-        #plot_simple_SIR(t, S, E, I, T, R)
+        plot_simple_SIR(t, S, E, I, T, R)
         print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
         #
         #t, S, E, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
@@ -94,7 +95,7 @@ for cohort_sizes in [10]: #[10,15,20]
     #nx.draw(school.network, with_labels=True, font_weight='bold')
     #plt.show()
     t,S,E,I,T,R = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=1)
-
+    # plt.plot()
 # plot_simple_SIR(t,S,I,R)
 #print(T)
 

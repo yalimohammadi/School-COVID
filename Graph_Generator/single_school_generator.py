@@ -72,10 +72,12 @@ class School:
     def assing_teacher_to_cohort(self,teacher,cohort_ids, teacher_student_infection_rate=.1,student_teacher_infection_rate=.1):
         new_edges=[]
         for s in cohort_ids:
-            new_edges.append((teacher,s,{"weight": teacher_student_infection_rate}))
-            new_edges.append((s,teacher,{"weight": student_teacher_infection_rate}))
+            new_edges.append((teacher,s,teacher_student_infection_rate))
+            new_edges.append((s,teacher,student_teacher_infection_rate))
 
-        self.network.add_weighted_edges_from(new_edges)
+        return new_edges
+
+
 
     def generate_school_network(self, Cohort_Size, Num_Cohorts, Num_Grades,p_c=1/7, p_g=1/35,
                                     intra_cohort_infection_rate=.1, teacher_student_infection_rate=3 / 7,
@@ -92,6 +94,11 @@ class School:
         np.fill_diagonal(probs,p_c)
 
         intra_cohort_network = nx.stochastic_block_model(grade_sizes, probs, seed=0)
+        mapping=dict()
+        num_teachers=self.teachers.network.number_of_nodes()
+        for i in range(intra_cohort_network.number_of_nodes()):
+            mapping[i]=i+num_teachers
+        nx.relabel_nodes(intra_cohort_network, mapping,copy=False)
 
         school_network = nx.Graph()
         old = school_network.number_of_nodes()
@@ -110,15 +117,17 @@ class School:
 
 
 
-
+        teacher_edges=[]
+        num_cohorts_per_teacher=3
+        total_cohorts=self.num_cohort*self.num_grades
         for t in self.teachers_id:
-            if t*3+3<self.num_cohort*self.num_grades:
-                # assignments finished
-                break
-            self.assing_teacher_to_cohort(t,self.cohorts_list[t*3],teacher_student_infection_rate,student_teacher_infection_rate)
-            self.assing_teacher_to_cohort(t,self.cohorts_list[t*3+1],teacher_student_infection_rate,student_teacher_infection_rate)
-            self.assing_teacher_to_cohort(t,self.cohorts_list[t*3+2],teacher_student_infection_rate,student_teacher_infection_rate)
+            for i in range(num_cohorts_per_teacher):
+                new_edge=self.assing_teacher_to_cohort(t,self.cohorts_list[(t*num_cohorts_per_teacher+i)%total_cohorts],
+                                                       teacher_student_infection_rate,student_teacher_infection_rate)
+                teacher_edges+=new_edge
 
+        # print("t_edges",teacher_edges)
+        school_network.add_weighted_edges_from(teacher_edges)
         school_network.add_weighted_edges_from(intra_cohort_network.edges.data("weight", default=intra_cohort_infection_rate))
 
         #write code here, including weights according to intra_grade_infection_rate
