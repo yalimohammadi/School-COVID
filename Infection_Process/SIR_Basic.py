@@ -583,9 +583,12 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     if weighted_test:
         school= test_args[0]
         test_cap = test_args[1]
-        total_num_cohorts=school.num_grades*school.num_cohort
+        total_num_cohorts=school.num_grades*school.num_cohort+1
         curr_weight = [1 for i in range(total_num_cohorts)]
+        curr_weight[-1]=10 #last index is for teachers
         next_weight = [1 for i in range(total_num_cohorts)]
+        next_weight[-1]=10#last index is for teachers
+
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
 
@@ -593,8 +596,8 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
             if weighted_test:
                 curr_weight, next_weight= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I, T, R, status, school, test_cap, curr_weight,next_weight)
-                #print("next_weight",next_weight)
-                #print("curr_weight",curr_weight)
+                print("next_weight",next_weight)
+                print("curr_weight",curr_weight)
             else:
                 testing_strategy(cur_test_time, times, S,E, I, T, R, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if len(all_test_times)>0:
@@ -666,8 +669,11 @@ from Testing_Strategies.Simple_Random import random_from_cohorts
 
 def testing_strategy_with_weights(time, times, S,E, I, T, R, status,school,test_cap,curr_weight,next_weight):
 
-    total_num_cohorts=school.num_grades*school.num_cohort
+    total_num_cohorts=school.num_grades*school.num_cohort+1
+
     second_next_weight = [1 for i in range(total_num_cohorts)]
+    # last index is for teachers
+    second_next_weight[-1]=10.
 
 
     to_test = random_from_cohorts(school,test_cap,status,curr_weight)
@@ -679,7 +685,7 @@ def testing_strategy_with_weights(time, times, S,E, I, T, R, status,school,test_
             status[node] = 'T'
             new_positive+=1
             new_positive_ids.append(node)
-
+    print("new_positives",new_positive)
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
     E.append(E[-1])  #

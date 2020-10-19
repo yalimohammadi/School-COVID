@@ -21,7 +21,7 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
     # if it is not weighted pass nothing for weight
     to_process_test=[]
 
-    total_cohorts= (school.num_cohort*school.num_grades)
+    total_cohorts= (school.num_cohort*school.num_grades)+1
     if len(weight)>0:
         s=sum(weight)
         test_probs=[w/s for w in weight]
@@ -30,7 +30,11 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
         test_probs=[test_prob]*(total_cohorts)
 
 
-    for i in range(total_cohorts):
+    teachers_stat = dict((k, status[k]) for k in school.teachers_id)
+    teachers_selected_tests = fully_random_test(test_probs[-1] * test_cap, teachers_stat)
+    to_process_test += teachers_selected_tests
+
+    for i in range(total_cohorts-1):
         cohort=school.cohorts_list[i]
 
         cohort_stat= dict((k, status[k]) for k in cohort)
@@ -43,13 +47,17 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
 
 def calculating_test_weights(school,new_positives,next_weights,second_next_weights,first_coefficient=10,second_coefficient=5):
 
-    total_cohorts= (school.num_cohort*school.num_grades)
+    total_cohorts= (school.num_cohort*school.num_grades)+1
 
     for id in new_positives:
         # if p positive students are found in the cohort then add p  weights to its testing
-        cohort=school.student_to_cohort[id]
-        next_weights[cohort]+=1.*first_coefficient
-        second_next_weights[cohort]+=1.*second_coefficient # we can assign smaller weight for the second test
+        if id in school.teachers_id:
+            next_weights[-1]+=1.*first_coefficient
+            second_next_weights[-1]+=1.*second_coefficient
+        else:
+            cohort=school.student_to_cohort[id]
+            next_weights[cohort]+=1.*first_coefficient
+            second_next_weights[cohort]+=1.*second_coefficient # we can assign smaller weight for the second test
 
 
     return next_weights,second_next_weights

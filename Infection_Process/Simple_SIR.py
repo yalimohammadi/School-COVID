@@ -50,12 +50,12 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
         print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
         plot_simple_SIR(t, S, E, I, T, R)
         #
-        # t, S, E, I, T, R, status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
-        #                              rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
-        #                              test_args=(school, 400,),weighted_test=True)
-        # #plot_simple_SIR(t, S, E, I, T, R)
-        # print("T= ", T)
-        # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
+        t, S, E, I, T, R, status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+                                     rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
+                                     test_args=(school, 400,),weighted_test=True)
+        #plot_simple_SIR(t, S, E, I, T, R)
+        print("T= ", T)
+        print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
 
     return t,S,E,I,T,R
 
