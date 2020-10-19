@@ -30,13 +30,13 @@ school = School("LA1", num_grades, cohort_sizes, num_cohort, num_teachers, p_c, 
                 high_infection_rate, low_infection_rate, intra_cohort_infection_rate, teacher_student_infection_rate,
                 student_teacher_infection_rate, infection_rate_between_teachers)
 
-t,S,I,R=EoN.fast_SIR(school.network, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
-                                     rho=initial_fraction_infected)
-
-plt.plot(t,S)
-plt.plot(t,I)
-plt.plot(t,R)
-plt.show()
-print(R[-1])
-# print(school.network.edges(0))
+# t,S,I,R=EoN.fast_SIR(school.network, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+#                                      rho=initial_fraction_infected)
+#
+# plt.plot(t,S)
+# plt.plot(t,I)
+# plt.plot(t,R)
+# plt.show()
+# print(R[-1])
+print(school.network[0][64]["weight"])
 # print(school.network.edges(100))
