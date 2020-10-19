@@ -3,6 +3,7 @@ import  random
 
 def fully_random_test(test_cap,status):
     testable = []
+    test_cap=int(test_cap)
     for v in status.keys():
         if not(status[v]=="T"):
             testable.append(v)
