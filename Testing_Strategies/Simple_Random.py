@@ -1,12 +1,15 @@
 import  random
+import math
+import numpy as np
 
-
-def fully_random_test(test_cap,status):
-    testable = []
-    test_cap=int(test_cap)
+def fully_random_test(test_cap,status, already_present=[]):
+    testable = already_present
+    test_cap = math.ceil(test_cap)
     for v in status.keys():
-        if not(status[v]=="T"):
-            testable.append(v)
+        if v not in already_present:
+            if not(status[v] == "T" and "R"):
+                # print(status[v])
+                testable.append(v)
 
 
     if test_cap>len(testable):
@@ -31,7 +34,10 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
 
 
     teachers_stat = dict((k, status[k]) for k in school.teachers_id)
+    # print(len(teachers_stat))
+    # print(test_probs[-1])
     teachers_selected_tests = fully_random_test(test_probs[-1] * test_cap, teachers_stat)
+    # print(len(teachers_selected_tests))
     to_process_test += teachers_selected_tests
 
     for i in range(total_cohorts-1):
@@ -43,6 +49,12 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
 
         to_process_test+=cohort_selected_tests
 
+    if len(to_process_test)>test_cap:
+        to_process_test=random.sample(to_process_test, test_cap)
+    else:
+        to_process_test=fully_random_test(test_cap-len(to_process_test), dict((k, status[k]) for k in range(school.size)), to_process_test)
+
+    #print(len(to_process_test))
     return to_process_test
 
 def calculating_test_weights(school,new_positives,next_weights,second_next_weights,first_coefficient=10,second_coefficient=5):

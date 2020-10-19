@@ -650,6 +650,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 def testing_strategy(time, times, S,E, I, T, R, status,test_args,test_func):
 
     to_test=test_func(*test_args, status)
+    # print(len(to_test))
     new_positive=0
     for node in to_test:
         if status[node] == 'I':
