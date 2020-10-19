@@ -12,8 +12,8 @@ def plot_simple_SIR(t,S,E,I,T,R,alpha=1,last=True, teststrat="Fully Random"):
     if last:
         plt.plot(t, I, label="Infected: Random within Cohort", alpha=alpha,color="r")
         #plt.plot(t, T, label="Infected Tested: Random within Cohort", alpha=alpha, color="r")
-        plt.plot(t, S, label="S", alpha=alpha,color="g")
-        plt.plot(t, R, label="R", alpha=alpha,color="b")
+        #plt.plot(t, S, label="S", alpha=alpha,color="g")
+        #plt.plot(t, R, label="R", alpha=alpha,color="b")
 
         plt.legend()
         plt.xlabel("time")
@@ -39,22 +39,22 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
         #print_infected_teachers(status)
         plot_simple_SIR(t, S, E, I, T, R,last=False)
         #print("I= ",I)
-        #print("T= ",T)
+        print("T= ",T)
         print("Full Random strategy: Total number of infected= ", R[len(R)-1])
 
         t, S, E, I, T, R,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
                                      test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
         #print("I= ", I)
-        #print("T= ", T)
+        print("T= ", T)
         plot_simple_SIR(t, S, E, I, T, R)
         print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
         #
-        t, S, E, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
-                                     rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
-                                     test_args=(school, 100,),weighted_test=True)
-        #plot_simple_SIR(t, S, E, I, T, R)
-        print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
+        # t, S, E, I, T, R = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+        #                              rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
+        #                              test_args=(school, 100,),weighted_test=True)
+        # #plot_simple_SIR(t, S, E, I, T, R)
+        # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
 
     return t,S,E,I,T,R
 
@@ -81,7 +81,7 @@ infection_rate_between_teachers=high_infection_rate*scale #teachers are similar 
 high_risk_probability=0 #(fixed, irrelevant for now)
 initial_fraction_infected= 0.001 #initial fraction infected (fix this)
 transmission_scale= 1 #transmission rate per edge (fix this)
-removal_rate = 1/10#recovery rate per node (fix this)
+removal_rate = 1/13#recovery rate per node (fix this)
 
 #number of days to recover =  time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
 #num_days_between_exposed_infection=Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
