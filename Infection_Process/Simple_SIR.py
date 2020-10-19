@@ -38,12 +38,15 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
                                rho=initial_fraction_infected, all_test_times = np.linspace(0,119,120),test_args=(100,),test_func=Simple_Random.fully_random_test,weighted_test=False)
         print_infected_teachers(status)
         #plot_simple_SIR(t, S, E, I, T, R,last=False)
-        print("I= ",I)
-        print("T= ",T)
+        #print("I= ",I)
+        #print("T= ",T)
         print("Full Random strategy: Total number of infected= ", R[len(R)-1])
 
         t, S, E, I, T, R,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
+                                     test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
+        #print("I= ", I)
+        #print("T= ", T)
                                      test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=True)
         print("I= ", I)
         print("T= ", T)
@@ -61,18 +64,18 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
 
 
 
-total_students=1000
+total_students=2000
 num_grades=4
 num_teachers=60
 num_of_students_within_grade=int(total_students/num_grades)
-p_c=1 # [0.05,0.1,,0.2,0.4]
-cg_scale=1 #5 # [5,10]
+p_c=0.1 # [0.05,0.1,,0.2,0.4]
+cg_scale=10 #5 # [5,10]
 p_g=p_c*cg_scale
-alpha=1
-high_infection_rate=low_infection_rate=1*alpha
-scale=10
+alpha=0.5
+high_infection_rate=low_infection_rate=(5/7)*alpha
+scale=1/5
 intra_cohort_infection_rate=high_infection_rate*scale
-print(intra_cohort_infection_rate)
+#print(intra_cohort_infection_rate)
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
 teacher_student_infection_rate=student_teacher_infection_rate=high_infection_rate
 infection_rate_between_teachers=high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
