@@ -26,14 +26,15 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
         s=sum(weight)
         test_probs=[w/s for w in weight]
     else:
-        test_prob=int(1./total_cohorts)
+        test_prob=1./total_cohorts
         test_probs=[test_prob]*(total_cohorts)
 
 
     for i in range(total_cohorts):
         cohort=school.cohorts_list[i]
 
-        cohort_stat= dict((k, status[k]) for k in cohort )
+        cohort_stat= dict((k, status[k]) for k in cohort)
+        #print(cohort_stat)
         cohort_selected_tests=fully_random_test(test_probs[i]*test_cap, cohort_stat)
 
         to_process_test+=cohort_selected_tests

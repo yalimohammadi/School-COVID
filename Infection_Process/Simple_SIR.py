@@ -35,7 +35,7 @@ def print_infected_teachers(status):
 def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1) -> object:
     for i in range(num_sim):
         t,S,E,I,T,R,status=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
-                               rho=initial_fraction_infected, all_test_times = np.linspace(0,119,120),test_args=(100,),test_func=Simple_Random.fully_random_test,weighted_test=False)
+                               rho=initial_fraction_infected, all_test_times = np.linspace(0,119,120),test_args=(400,),test_func=Simple_Random.fully_random_test,weighted_test=False)
         #print_infected_teachers(status)
         plot_simple_SIR(t, S, E, I, T, R,last=False)
         #print("I= ",I)
@@ -44,17 +44,18 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
 
         t, S, E, I, T, R,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
-                                     test_args=(school, 100,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
+                                     test_args=(school, 400,), test_func=Simple_Random.random_from_cohorts,weighted_test=False)
         #print("I= ", I)
         print("T= ", T)
-        plot_simple_SIR(t, S, E, I, T, R)
         print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
+        plot_simple_SIR(t, S, E, I, T, R)
         #
-        t, S, E, I, T, R, status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
-                                     rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
-                                     test_args=(school, 100,),weighted_test=True)
-        #plot_simple_SIR(t, S, E, I, T, R)
-        print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
+        # t, S, E, I, T, R, status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
+        #                              rho=initial_fraction_infected, all_test_times=np.linspace(0, 119, 120),
+        #                              test_args=(school, 400,),weighted_test=True)
+        # #plot_simple_SIR(t, S, E, I, T, R)
+        # print("T= ", T)
+        # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
 
     return t,S,E,I,T,R
 
@@ -65,11 +66,11 @@ total_students=2000
 num_grades=4
 num_teachers=60
 num_of_students_within_grade=int(total_students/num_grades)
-p_c=0.05 # [0.05,0.1,,0.2,0.4]
+p_c=0.1 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
 p_g=p_c*cg_scale
 alpha=0.5
-high_infection_rate=low_infection_rate=(1/7)*alpha
+high_infection_rate=low_infection_rate=(5/7)*alpha
 scale=1/5
 intra_cohort_infection_rate=high_infection_rate*scale
 #print(intra_cohort_infection_rate)

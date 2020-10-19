@@ -593,8 +593,8 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
             if weighted_test:
                 curr_weight, next_weight= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I, T, R, status, school, test_cap, curr_weight,next_weight)
-                print("next_weight",next_weight)
-                print("curr_weight",curr_weight)
+                #print("next_weight",next_weight)
+                #print("curr_weight",curr_weight)
             else:
                 testing_strategy(cur_test_time, times, S,E, I, T, R, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if len(all_test_times)>0:
