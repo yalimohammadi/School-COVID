@@ -170,7 +170,7 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
              rho=None, tmin=0, tmax=float('Inf'), transmission_weight=None,
              recovery_weight=None, return_full_data=False, sim_kwargs=None,
-             all_test_times=[], test_args=None,test_func=None,weighted_test=True):
+             all_test_times=[], test_args=None,test_func=None,weighted_test=True,school=None, isolate=False):
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
@@ -299,7 +299,8 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
                                   sim_kwargs=sim_kwargs, all_test_times=all_test_times,
-                                  test_args=test_args,test_func=test_func,weighted_test=weighted_test)
+                                  test_args=test_args,test_func=test_func,weighted_test=weighted_test,
+                                  school=school,isolate=isolate)
 
 
     else:
@@ -335,7 +336,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        rho=None, tmin=0, tmax=float('Inf'),
                        return_full_data=False, sim_kwargs=None,
                        all_test_times=[], test_args=(), test_func=None,
-                       weighted_test=True):
+                       weighted_test=True, school=None,isolate=False):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
@@ -583,8 +584,9 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         cur_test_time = all_test_times.pop(0)
 
 
+
     if weighted_test:
-        school= test_args[0]
+        school = test_args[0]
         test_cap = test_args[1]
         total_num_cohorts=school.num_grades*school.num_cohort+1
         curr_weight = [1 for i in range(total_num_cohorts)]
@@ -597,12 +599,15 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
         if cur_test_time < cur_time:
             if weighted_test:
-                curr_weight, next_weight= testing_strategy_with_weights(cur_test_time,
+                curr_weight, next_weight, positive_nodes= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I, T, R, Isolated, status, school, test_cap, curr_weight,next_weight)
                 print("next_weight",next_weight)
                 print("curr_weight",curr_weight)
             else:
-                testing_strategy(cur_test_time, times, S,E, I, T, R, Isolated, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+                positive_nodes=testing_strategy(cur_test_time, times, S,E, I, T, R, Isolated, status,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+            if isolate:
+                new_isolated=find_isolated_cohorts(positive_nodes,school,at_school)
+                isolate_set_of_nodes(cur_test_time,times,S,E,I,T,R,Isolated,Q,new_isolated, at_school)
             if len(all_test_times)>0:
                 cur_test_time = all_test_times.pop(0)
             else:
@@ -621,9 +626,10 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     E = E[len(initial_infecteds):]
     R = R[len(initial_infecteds):]
     T = T[len(initial_infecteds):]
+    Isolated = Isolated[len(initial_infecteds):]
     if not return_full_data:
         return np.array(times), np.array(S), np.array(E), np.array(I), \
-               np.array(T), np.array(R),status
+               np.array(T), np.array(R), np.array(Isolated),status
     else:
         # strip pred_inf_time and rec_time down to just the values for nodes
         # that became infected
@@ -648,6 +654,35 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 
 #######OUR CODE STARTS HERE
+def isolate_set_of_nodes(time, times, S, E, I, T, R, Isolated, Q, set_of_nodes,at_school,isolation_time=7.0):
+    for node in set_of_nodes:
+        _isolate_a_node(time, times, S, E, I, T, R, Isolated, Q, node, at_school,isolation_time=isolation_time)
+
+def _isolate_a_node(time, times, S,E, I, T, R, Isolated, Q, node, at_school,isolation_time=7. ):
+    at_school[node]=False
+    times.append(time)
+    S.append(S[-1])  # no change to number susceptible
+    I.append(I[-1])  # no change to number infected
+    E.append(E[-1])  #
+    R.append(R[-1])  # no change to number recovered
+    T.append(T[-1] )  # one more infected tested
+    Isolated.append(Isolated[-1]+1)
+
+    Q.add(time + isolation_time, _unisolate_a_node,
+          args=( times, S,E, I, T, R, Isolated, node,at_school)
+          )
+
+def _unisolate_a_node(time, times, S,E, I, T, R, Isolated, node,at_school):
+
+    at_school[node]=True
+
+    times.append(time)
+    S.append(S[-1])  # no change to number susceptible
+    I.append(I[-1])  # no change to number infected
+    E.append(E[-1])  #
+    R.append(R[-1])  # no change to number recovered
+    T.append(T[-1] )  # one more infected tested
+    Isolated.append(Isolated[-1]-1)
 
 
 def testing_strategy(time, times, S,E, I, T, R, Isolated,status,test_args,test_func):
@@ -655,10 +690,12 @@ def testing_strategy(time, times, S,E, I, T, R, Isolated,status,test_args,test_f
     to_test=test_func(*test_args, status)
     # print(len(to_test))
     new_positive=0
+    positive_ids=[]
     for node in to_test:
         if status[node] == 'I':
             status[node] = 'T'
             new_positive+=1
+            positive_ids.append(node)
 
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
@@ -666,8 +703,8 @@ def testing_strategy(time, times, S,E, I, T, R, Isolated,status,test_args,test_f
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     T.append(T[-1] + new_positive)  # one more infected tested
-    Isolated.append(I[-1])
-
+    Isolated.append(Isolated[-1])
+    return positive_ids
 
 from Testing_Strategies.Simple_Random import calculating_test_weights
 from Testing_Strategies.Simple_Random import random_from_cohorts
@@ -703,9 +740,33 @@ def testing_strategy_with_weights(time, times, S,E, I, T, R,Isolated, status,sch
 
     next_weight,second_next_weight=calculating_test_weights(school, new_positive_ids, next_weight, second_next_weight)
 
-    return next_weight,second_next_weight
+    return next_weight,second_next_weight,new_positive_ids
 
 
+def find_isolated_cohorts(positives,school,at_school,threshold=1):
+    total_num_cohort=school.num_cohort*school.num_grades
+    positive_per_cohort=np.zeros(total_num_cohort)
+    positive_teachers=0
+    for node in positives:
+        if node==-1:
+            continue
+        if node in school.teachers_id:
+            positive_teachers+=1
+        else:
+            positive_per_cohort[school.student_to_cohort[node]]+=1
+
+    to_isolate=[]
+    for i in range(total_num_cohort):
+        ps=positive_per_cohort[i]
+        if ps>=threshold:
+            for student in school.cohorts_list[i]:
+                if at_school[student]:
+                    to_isolate.append(student)
+            # to_isolate+=school.cohorts_list[i]
+    # print("number of positive teachers",positive_teachers)
+
+
+    return to_isolate
 
 
 
