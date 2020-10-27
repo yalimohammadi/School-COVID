@@ -2,14 +2,13 @@ import  random
 import math
 import numpy as np
 
-def fully_random_test(test_cap,status, already_present=[]):
+def fully_random_test(test_cap,tested, already_present=[]):
     testable = already_present
-    test_cap = math.ceil(test_cap)
-    for v in status.keys():
-        if v not in already_present:
-            if not(status[v] == "T" and "R"):
-                # print(status[v])
-                testable.append(v)
+    test_cap = int(round(test_cap)) # round to nearest integer
+
+    for v in tested.keys():
+        if  tested[v]==False and (v not in already_present):
+            testable.append(v)
 
 
     if test_cap>len(testable):
@@ -20,7 +19,7 @@ def fully_random_test(test_cap,status, already_present=[]):
     return to_process_test
 
 
-def random_from_cohorts(school,test_cap,status,weight=[]):
+def random_from_cohorts(school,test_cap,tested,weight=[]):
     # if it is not weighted pass nothing for weight
     to_process_test=[]
 
@@ -33,17 +32,15 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
         test_probs=[test_prob]*(total_cohorts)
 
 
-    teachers_stat = dict((k, status[k]) for k in school.teachers_id)
-    # print(len(teachers_stat))
-    # print(test_probs[-1])
+    teachers_stat = dict((k, tested[k]) for k in school.teachers_id)
     teachers_selected_tests = fully_random_test(test_probs[-1] * test_cap, teachers_stat)
-    # print(len(teachers_selected_tests))
+
     to_process_test += teachers_selected_tests
 
     for i in range(total_cohorts-1):
         cohort=school.cohorts_list[i]
 
-        cohort_stat= dict((k, status[k]) for k in cohort)
+        cohort_stat= dict((k, tested[k]) for k in cohort)
         #print(cohort_stat)
         cohort_selected_tests=fully_random_test(test_probs[i]*test_cap, cohort_stat)
 
@@ -52,7 +49,7 @@ def random_from_cohorts(school,test_cap,status,weight=[]):
     if len(to_process_test)>test_cap:
         to_process_test=random.sample(to_process_test, test_cap)
     else:
-        to_process_test=fully_random_test(test_cap-len(to_process_test), dict((k, status[k]) for k in range(school.size)), to_process_test)
+        to_process_test=fully_random_test(test_cap-len(to_process_test), dict((k, tested[k]) for k in range(school.size)), to_process_test)
 
     #print(len(to_process_test))
     return to_process_test
