@@ -677,6 +677,13 @@ def _isolate_a_node(time, times, S, E, I, P, R, Isolated, Q, node, at_school, is
           args=(times, S, E, I, P, R, Isolated, node, at_school)
           )
 
+def debug(to_print,message):
+    print("debugs")
+
+    print(message)
+    for i in to_print:
+        print(i)
+
 def _unisolate_a_node(time, times, S, E, I, P, R, Isolated, node, at_school):
 
     at_school[node]=True
@@ -689,6 +696,7 @@ def _unisolate_a_node(time, times, S, E, I, P, R, Isolated, node, at_school):
     P.append(P[-1])  # one more infected tested
 
     Isolated.append(Isolated[-1]-1)
+    debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
 
 
 def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_args, test_func):
@@ -710,7 +718,7 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1] + new_positive)  # one more infected tested
-
+    debug([positive_ids,status,tested],"in testing strategy, new positives (first line). status (second line) , all already tested positive students (third line)")
     Isolated.append(Isolated[-1])
     return positive_ids
 
