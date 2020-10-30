@@ -11,11 +11,11 @@ def plot_simple_SIR(t,S,E,I,T,R,Isolated, alpha=1,last=True, teststrat="Fully Ra
 
 
     if last:
-        plt.plot(t, I, label="Infected: Random with Cohort Isolation", alpha=alpha,color="r")
+        plt.plot(t, I, label="Infected: Random with Cohort Isolation", alpha=alpha, color="r")
         #plt.plot(t, T, label="Infected Tested: Random within Cohort", alpha=alpha, color="r")
         #plt.plot(t, S, label="S", alpha=alpha,color="g")
         #plt.plot(t, R, label="R", alpha=alpha,color="b")
-        plt.plot(t,Isolated,label="Isolated vertices: Random with Cohort Isolation", alpha=alpha,color="g")
+        plt.plot(t,Isolated,label="Isolated vertices: Random with Cohort Isolation", alpha=alpha, color="g")
 
 
     else:
