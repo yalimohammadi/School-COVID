@@ -20,9 +20,9 @@ class Cohort:
         for v in G.nodes():
             # generate high risk students
             p=random.uniform(0, 1)
-            if p<high_risk_probability:
+            if p < high_risk_probability:
                 es=G.edges(v)
-                G.update([(e1,e2,{"weight": high_infection_rate} )for (e1,e2) in es] )
+                G.update([(e1,e2,{"weight": high_infection_rate} )for (e1,e2) in es])
         return G
 
     def set_student_ids(self,ids):
