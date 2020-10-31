@@ -7,7 +7,7 @@ def fully_random_test(test_cap,tested, already_present=[]):
     test_cap = int(round(test_cap)) # round to nearest integer
 
     for v in tested.keys():
-        if  tested[v]==False and (v not in already_present):
+        if tested[v]==False and (v not in already_present):
             testable.append(v)
 
 
