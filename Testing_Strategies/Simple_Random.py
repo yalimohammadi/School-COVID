@@ -43,7 +43,7 @@ def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
     to_process_test += teachers_selected_tests
 
     print("num at school_cohorts", len(at_school_cohorts))
-    print("tested cohort", at_school_cohorts[0][0],tested[at_school_cohorts[0][0]],at_school[at_school_cohorts[0][0]])
+    print("tested cohort", at_school_cohorts[0][0],tested[at_school_cohorts[0][0]],at_school[at_school_cohorts[0][0]]) #why student is both tested and is at school
     for cohort in at_school_cohorts:
         cohort_stat= dict((k, tested[k]) for k in cohort)
         #print(cohort_stat)
