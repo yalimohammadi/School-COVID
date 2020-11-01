@@ -27,15 +27,20 @@ def print_infected_teachers(status):
 
 
 
-def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1) -> object:
+def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1) -> object:
     final_infected_FR=[]
     final_infected_RWC=[]
-    num_of_tests=250
+    outbreak= .10*G.number_of_nodes()
+    print(outbreak)
+    num_outbreak_FR=0
+    num_outbreak_RWC=0
     for i in range(num_sim):
         t,S,E,I,T,R,Isolated,status=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
-                               rho=initial_fraction_infected, all_test_times = np.linspace(0,500,500),test_args=(num_of_tests,),test_func=Simple_Random.fully_random_test,
+                               rho=initial_fraction_infected, all_test_times = np.linspace(0,500,500),test_args=(200,),test_func=Simple_Random.fully_random_test,
                                                  weighted_test=False,school=school,isolate=True)
         final_infected_FR.append(R[-1])
+        if R[-1]>outbreak:
+            num_outbreak_FR+=1
         # #print_infected_teachers(status)
         # #print(I)
         # plot_simple_SIR(t, S, E, I, T, R,Isolated,name="full random")
@@ -48,14 +53,16 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
         # print(final_num_infected_with_cohort_isolation_full_random)
         t, S, E, I, T, R,Isolated,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 500, 500),
-                                     test_args=(school, num_of_tests,), test_func=Simple_Random.random_from_cohorts,weighted_test=False,school=school,isolate=True)
+                                     test_args=(school, 200,), test_func=Simple_Random.random_from_cohorts,weighted_test=False,school=school,isolate=True)
         #print("I= ", I)
         # print("T= ", T)
         # print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
         # final_num_infected_with_cohort_isolation_random_cohort.append(sp.integrate.simps(Isolated, t))
         final_infected_RWC.append(R[-1])
+        if R[-1]>outbreak:
+            num_outbreak_RWC+=1
         #print(I)
-        #plot_simple_SIR(t, S, E, I, T, R,Isolated, name="Random within cohort")
+        # plot_simple_SIR(t, S, E, I, T, R,Isolated, name="Random within cohort")
         #
         # t,S,E,I,T,R,Isolated,status=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
         #                        rho=initial_fraction_infected, all_test_times = np.linspace(0,300,300),test_args=(300,),test_func=Simple_Random.fully_random_test,
@@ -76,26 +83,26 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
         # print("T= ", T)
         # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
 
-    return np.mean(final_infected_FR), np.mean(final_infected_RWC) #
+    return np.mean(final_infected_FR), np.mean(final_infected_RWC),num_outbreak_FR/num_sim,num_outbreak_RWC/num_sim #
 
 
 
 
-total_students=2400
+total_students=2000
 num_grades=4
-num_teachers=1
+num_teachers=50
 num_of_students_within_grade=int(total_students/num_grades)
 p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
 p_g=p_c*cg_scale
-alpha=0.5
+alpha=0.5*10.
 high_infection_rate=low_infection_rate=(1/7)*alpha
-scale=1/5
+scale=1/5.
 intra_cohort_infection_rate=high_infection_rate*scale
 #print(intra_cohort_infection_rate)
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
-teacher_student_infection_rate=student_teacher_infection_rate=0#high_infection_rate
-infection_rate_between_teachers=0#high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
+teacher_student_infection_rate=student_teacher_infection_rate=high_infection_rate
+infection_rate_between_teachers=high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
 
 
 high_risk_probability=0 #(fixed, irrelevant for now)
@@ -112,12 +119,12 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 
 
-school_sim=5 0
+school_sim=1
 #cohort_sizes=14
-cohort_size_list=[10,15,20]
+cohort_size_list=[10]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
-    num_cohort=int(num_of_students_within_grade/cohort_sizes)
+    num_cohort=int(round(num_of_students_within_grade/cohort_sizes))
     #school = School(name="LA1",  num_grades,cohort_sizes,num_cohort,num_teachers)
     to_plot1 = []
     to_plot2 = []
@@ -127,9 +134,11 @@ for cohort_sizes in cohort_size_list: #p_c in [.05]:
         #plt.subplot(121)
         #nx.draw(school.network, with_labels=True, font_weight='bold')
         #plt.show()
-        avg1, avg2 = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=10)
+        avg1, avg2,outbreak1,outbreak2 = SIR_on_weighted_Graph(school.network,school,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=100)
         to_plot1.append(avg1/school.network.number_of_nodes())
         to_plot2.append(avg2/ school.network.number_of_nodes())
+        print(outbreak1,outbreak2,"fraction outbrek")
+
     # plt.plot()
     final_num_infected_with_cohort_isolation_full_random.append(np.mean(to_plot1))
     final_num_infected_with_cohort_isolation_random_cohort.append(np.mean(to_plot2))

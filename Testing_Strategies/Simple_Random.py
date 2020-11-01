@@ -58,15 +58,19 @@ def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
     # print("tested cohort", at_school_cohorts[0][0],tested[at_school_cohorts[0][0]],at_school[at_school_cohorts[0][0]]) #why student is both tested and is at school
     for cohort in at_school_cohorts:
         cohort_stat= dict((k, tested[k]) for k in cohort)
-        #print(cohort_stat)
+        # print(cohort_stat.keys())
         cohort_selected_tests=fully_random_test(test_cap*test_prob, cohort_stat,at_school)
-        #print("cohort sample", cohort_selected_tests)
+        # print("cohort sample", cohort_selected_tests)
+
         to_process_test+=cohort_selected_tests
 
-    if len(to_process_test)>test_cap:
+    if len(to_process_test)>=test_cap:
         tested_students=random.sample(to_process_test, test_cap)
     else:
-        tested_students=fully_random_test(test_cap, tested, at_school,already_present=to_process_test)
+        tested_students=fully_random_test(test_cap-len(to_process_test), tested, at_school,already_present=to_process_test)
+        tested_students+=to_process_test
+        # if not len(tested_students)==400:
+        #     print("len",len(tested_students))
 
     # print("length of tested people", len(to_process_test))
     # print("length of tested people",len(tested_students))
