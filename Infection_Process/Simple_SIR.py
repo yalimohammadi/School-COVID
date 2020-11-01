@@ -82,7 +82,7 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
 
 total_students=1000
 num_grades=4
-num_teachers=60
+num_teachers=10
 num_of_students_within_grade=int(total_students/num_grades)
 p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
@@ -113,7 +113,7 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 school_sim=1
 #cohort_sizes=14
-cohort_size_list=[12]
+cohort_size_list=[10]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
     num_cohort=int(num_of_students_within_grade/cohort_sizes)
