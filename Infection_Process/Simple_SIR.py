@@ -149,7 +149,7 @@ print(final_num_infected_with_cohort_isolation_random_cohort)
 plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_full_random,label="Full Randaom", alpha=1, color= "blue")
 plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_random_cohort,label="Randaom within cohort", alpha=1, color= "red")
 plt.legend()
-plt.xlabel("Cohort Size")
+plt.xlabel("Cohort Size")#push?
 plt.ylabel("Avg Total Fraction of Infected")
 plt.show()
 
