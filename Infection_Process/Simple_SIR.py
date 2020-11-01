@@ -30,9 +30,10 @@ def print_infected_teachers(status):
 def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1) -> object:
     final_infected_FR=[]
     final_infected_RWC=[]
+    num_of_tests=250
     for i in range(num_sim):
         t,S,E,I,T,R,Isolated,status=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
-                               rho=initial_fraction_infected, all_test_times = np.linspace(0,500,500),test_args=(400,),test_func=Simple_Random.fully_random_test,
+                               rho=initial_fraction_infected, all_test_times = np.linspace(0,500,500),test_args=(num_of_tests,),test_func=Simple_Random.fully_random_test,
                                                  weighted_test=False,school=school,isolate=True)
         final_infected_FR.append(R[-1])
         # #print_infected_teachers(status)
@@ -47,7 +48,7 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
         # print(final_num_infected_with_cohort_isolation_full_random)
         t, S, E, I, T, R,Isolated,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 500, 500),
-                                     test_args=(school, 400,), test_func=Simple_Random.random_from_cohorts,weighted_test=False,school=school,isolate=True)
+                                     test_args=(school, num_of_tests,), test_func=Simple_Random.random_from_cohorts,weighted_test=False,school=school,isolate=True)
         #print("I= ", I)
         # print("T= ", T)
         # print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
@@ -80,9 +81,9 @@ def SIR_on_weighted_Graph(G,removal_rate = 1.,transmission_scale=1.,initial_frac
 
 
 
-total_students=2000
+total_students=2400
 num_grades=4
-num_teachers=50
+num_teachers=1
 num_of_students_within_grade=int(total_students/num_grades)
 p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
@@ -93,8 +94,8 @@ scale=1/5
 intra_cohort_infection_rate=high_infection_rate*scale
 #print(intra_cohort_infection_rate)
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
-teacher_student_infection_rate=student_teacher_infection_rate=high_infection_rate
-infection_rate_between_teachers=high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
+teacher_student_infection_rate=student_teacher_infection_rate=0#high_infection_rate
+infection_rate_between_teachers=0#high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
 
 
 high_risk_probability=0 #(fixed, irrelevant for now)
@@ -111,9 +112,9 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 
 
-school_sim=10
+school_sim=5 0
 #cohort_sizes=14
-cohort_size_list=[10,12,14]
+cohort_size_list=[10,15,20]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
     num_cohort=int(num_of_students_within_grade/cohort_sizes)

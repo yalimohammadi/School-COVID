@@ -35,18 +35,21 @@ def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
     to_process_test=[]
 
     at_school_cohorts=find_cohorts_at_school(school.cohorts_list, at_school)
-    total_cohorts=len(at_school_cohorts)+1 #+1 is for teachers
+    if len(school.teachers_id)>1:
+        total_cohorts=len(at_school_cohorts)+1 #+1 is for teachers
+    else:
+        total_cohorts=len(at_school_cohorts)
 
     test_prob=1./total_cohorts
     # test_probs=[test_prob]*(total_cohorts)
 
-
-    teachers_stat = dict((k, tested[k]) for k in school.teachers_id)
-    # print(teachers_stat)
-
-    teachers_selected_tests = fully_random_test(test_cap=test_prob * test_cap, tested=teachers_stat,at_school=at_school,already_present=[])
-    #print("Teacher sample", teachers_selected_tests)
-    to_process_test += teachers_selected_tests
+    if len(school.teachers_id) > 1:
+        print("teachers were tested")
+        teachers_stat = dict((k, tested[k]) for k in school.teachers_id)
+        # print(teachers_stat)
+        teachers_selected_tests = fully_random_test(test_cap=test_prob * test_cap, tested=teachers_stat,at_school=at_school,already_present=[])
+        #print("Teacher sample", teachers_selected_tests)
+        to_process_test += teachers_selected_tests
     # print("test_prob",test_prob*test_cap)
     # print("teachers",teachers_selected_tests)
     # print(to_process_test)
