@@ -118,7 +118,7 @@ class School:
 
 
         teacher_edges=[]
-        num_cohorts_per_teacher=1
+        num_cohorts_per_teacher=0
         total_cohorts=self.num_cohort*self.num_grades
         for t in self.teachers_id:
             for i in range(num_cohorts_per_teacher):

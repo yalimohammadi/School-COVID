@@ -95,7 +95,7 @@ num_of_students_within_grade=int(total_students/num_grades)
 p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
 p_g=p_c*cg_scale
-alpha=0.5*10.
+alpha=0.5*2.
 high_infection_rate=low_infection_rate=(1/7)*alpha
 scale=1/5.
 intra_cohort_infection_rate=high_infection_rate*scale
@@ -121,10 +121,11 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 school_sim=1
 #cohort_sizes=14
-cohort_size_list=[10]
+cohort_size_list=[10,12,20]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
     num_cohort=int(round(num_of_students_within_grade/cohort_sizes))
+    print("number of cohorts",num_cohort)
     #school = School(name="LA1",  num_grades,cohort_sizes,num_cohort,num_teachers)
     to_plot1 = []
     to_plot2 = []
