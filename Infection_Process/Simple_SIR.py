@@ -34,9 +34,10 @@ def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initi
     print(outbreak)
     num_outbreak_FR=0
     num_outbreak_RWC=0
+    number_of_tests=200
     for i in range(num_sim):
         t,S,E,I,T,R,Isolated,status=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
-                               rho=initial_fraction_infected, all_test_times = np.linspace(0,500,500),test_args=(200,),test_func=Simple_Random.fully_random_test,
+                               rho=initial_fraction_infected, all_test_times = np.linspace(0,500,500),test_args=(number_of_tests,),test_func=Simple_Random.fully_random_test,
                                                  weighted_test=False,school=school,isolate=True)
         final_infected_FR.append(R[-1])
         if R[-1]>outbreak:
@@ -53,7 +54,7 @@ def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initi
         # print(final_num_infected_with_cohort_isolation_full_random)
         t, S, E, I, T, R,Isolated,status = EoN.fast_SIR(G, gamma=removal_rate, tau=transmission_scale, transmission_weight="weight",
                                      rho=initial_fraction_infected, all_test_times=np.linspace(0, 500, 500),
-                                     test_args=(school, 200,), test_func=Simple_Random.random_from_cohorts,weighted_test=False,school=school,isolate=True)
+                                     test_args=(school, number_of_tests,), test_func=Simple_Random.random_from_cohorts,weighted_test=False,school=school,isolate=True)
         #print("I= ", I)
         # print("T= ", T)
         # print("Within Cohort Random strategy: Total number of infected= ", R[len(R) - 1])
@@ -119,9 +120,9 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 
 
-school_sim=1
+school_sim=10
 #cohort_sizes=14
-cohort_size_list=[10,12,20]
+cohort_size_list=[8,10,12,14,16]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
     num_cohort=int(round(num_of_students_within_grade/cohort_sizes))
@@ -135,7 +136,7 @@ for cohort_sizes in cohort_size_list: #p_c in [.05]:
         #plt.subplot(121)
         #nx.draw(school.network, with_labels=True, font_weight='bold')
         #plt.show()
-        avg1, avg2,outbreak1,outbreak2 = SIR_on_weighted_Graph(school.network,school,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=100)
+        avg1, avg2,outbreak1,outbreak2 = SIR_on_weighted_Graph(school.network,school,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=50)
         to_plot1.append(avg1/school.network.number_of_nodes())
         to_plot2.append(avg2/ school.network.number_of_nodes())
         print(outbreak1,outbreak2,"fraction outbrek")
