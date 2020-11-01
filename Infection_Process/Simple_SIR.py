@@ -90,7 +90,7 @@ def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initi
 
 total_students=2000
 num_grades=4
-num_teachers=50
+num_teachers=1
 num_of_students_within_grade=int(total_students/num_grades)
 p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
