@@ -44,7 +44,7 @@ def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
     # test_probs=[test_prob]*(total_cohorts)
 
     if len(school.teachers_id) > 1:
-        print("teachers were tested")
+        # print("teachers were tested")
         teachers_stat = dict((k, tested[k]) for k in school.teachers_id)
         # print(teachers_stat)
         teachers_selected_tests = fully_random_test(test_cap=test_prob * test_cap, tested=teachers_stat,at_school=at_school,already_present=[])

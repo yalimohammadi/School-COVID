@@ -43,7 +43,7 @@ class Grade:
 
 
 class School:
-    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers,p_c=1./7.,p_g=1./35.,high_risk_probability=0.0,high_infection_rate=1.,low_infection_rate=.5,intra_cohort_infection_rate=1.,teacher_student_infection_rate=1.,student_teacher_infection_rate=1.,infection_rate_between_teachers=1.):
+    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers,p_c=1./7.,p_g=1./35.,high_risk_probability=0.0,high_infection_rate=1.,low_infection_rate=.5,intra_cohort_infection_rate=1.,teacher_student_infection_rate=1.,student_teacher_infection_rate=1.,infection_rate_between_teachers=1.,max_num_students=2000):
         self.name = name
         self.size = num_grades*num_cohort*cohort_sizes+num_teachers
         self.num_grades = num_grades
@@ -55,7 +55,7 @@ class School:
         self.student_to_cohort = dict()
         self.teachers = self.generate_teachers(num_teachers=num_teachers,infection_rate_between_teachers=infection_rate_between_teachers)
         self.teachers_id = []
-        self.network = self.generate_school_network(p_c=p_c,p_g=p_g,Cohort_Size=cohort_sizes,Num_Cohorts=num_cohort,Num_Grades= num_grades,intra_cohort_infection_rate=intra_cohort_infection_rate,teacher_student_infection_rate=teacher_student_infection_rate,student_teacher_infection_rate=student_teacher_infection_rate)
+        self.network = self.generate_school_network(p_c=p_c,p_g=p_g,Cohort_Size=cohort_sizes,Num_Cohorts=num_cohort,Num_Grades= num_grades,intra_cohort_infection_rate=intra_cohort_infection_rate,teacher_student_infection_rate=teacher_student_infection_rate,student_teacher_infection_rate=student_teacher_infection_rate,max_num_students=max_num_students)
 
 
     def generate_grades(self,num_grades,num_cohorts,cohort_size,high_risk_probability, high_infection_rate, low_infection_rate):
@@ -81,7 +81,7 @@ class School:
 
     def generate_school_network(self, Cohort_Size, Num_Cohorts, Num_Grades,p_c=1/7, p_g=1/35,
                                     intra_cohort_infection_rate=.1, teacher_student_infection_rate=3 / 7,
-                                    student_teacher_infection_rate=3 / 7):
+                                    student_teacher_infection_rate=3 / 7,max_num_students=2000):
 
         # each school has a few grades and each grades has a number of cohorts
         # Num_Cohorts shows the number of cohorts in one grade
@@ -130,6 +130,9 @@ class School:
         school_network.add_weighted_edges_from(teacher_edges)
         school_network.add_weighted_edges_from(intra_cohort_network.edges.data("weight", default=intra_cohort_infection_rate))
 
+
+        for v in range(max_num_students+num_teachers, school_network.number_of_nodes()):
+            school_network.remove_node(v)
         #write code here, including weights according to intra_grade_infection_rate
 
         # print(school_network.edges.data)
