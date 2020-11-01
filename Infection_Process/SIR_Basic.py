@@ -659,11 +659,11 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
 
 #######OUR CODE STARTS HERE
-def isolate_set_of_nodes(time, times, S, E, I, T, R, Isolated, Q, set_of_nodes,at_school,isolation_time=7.0):
+def isolate_set_of_nodes(time, times, S, E, I, T, R, Isolated, Q, set_of_nodes,at_school,isolation_time=14.0):
     for node in set_of_nodes:
         _isolate_a_node(time, times, S, E, I, T, R, Isolated, Q, node, at_school,isolation_time=isolation_time)
 
-def _isolate_a_node(time, times, S, E, I, P, R, Isolated, Q, node, at_school, isolation_time=7.):
+def _isolate_a_node(time, times, S, E, I, P, R, Isolated, Q, node, at_school, isolation_time=14.):
     at_school[node]=False
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
@@ -711,8 +711,9 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
             new_positive+=1
             positive_ids.append(node)
             tested[node]=True
-    print(test_func)
-    debug([len(set(to_test))],"num of tests")
+    if len(set(to_test))<400:
+        print(test_func)
+        debug([len(set(to_test))],"num of tests")
 
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
@@ -780,8 +781,8 @@ def find_isolated_cohorts(positives,school,at_school,threshold=1):
         ps=positive_per_cohort[i]
         if ps>=threshold:
             for student in school.cohorts_list[i]:
-                if at_school[student]:
-                    to_isolate.append(student)
+                #if at_school[student]:
+                to_isolate.append(student)
             # to_isolate+=school.cohorts_list[i]
     # print("number of positive teachers",positive_teachers)
 

@@ -5,19 +5,19 @@ import  random
 
 def fully_random_test(test_cap,tested, at_school,already_present=[],debug=False):
     testable = []
-    test_cap = int(round(test_cap)) # round to nearest integer
+    test_cap1 = int(round(test_cap)) # round to nearest integer
 
     for v in tested.keys():
         if tested[v]==False and (v not in already_present) and at_school[v]:
             testable.append(v)
     if debug:
-        print(already_present)
-        print(test_cap)
+        print("already_present=", already_present)
+        print(test_cap1)
         print(testable)
-    if test_cap>len(testable):
+    if test_cap1>len(testable):
         to_process_test = testable
     else:
-        to_process_test = random.sample(testable, test_cap)
+        to_process_test = random.sample(testable, test_cap1)
 
     return to_process_test
 
@@ -43,8 +43,9 @@ def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
 
     teachers_stat = dict((k, tested[k]) for k in school.teachers_id)
     # print(teachers_stat)
-    teachers_selected_tests = fully_random_test(test_cap=test_prob * test_cap, tested=teachers_stat,at_school=at_school,already_present=[])
 
+    teachers_selected_tests = fully_random_test(test_cap=test_prob * test_cap, tested=teachers_stat,at_school=at_school,already_present=[])
+    #print("Teacher sample", teachers_selected_tests)
     to_process_test += teachers_selected_tests
     # print("test_prob",test_prob*test_cap)
     # print("teachers",teachers_selected_tests)
@@ -56,15 +57,16 @@ def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
         cohort_stat= dict((k, tested[k]) for k in cohort)
         #print(cohort_stat)
         cohort_selected_tests=fully_random_test(test_cap*test_prob, cohort_stat,at_school)
-
+        #print("cohort sample", cohort_selected_tests)
         to_process_test+=cohort_selected_tests
 
     if len(to_process_test)>test_cap:
         tested_students=random.sample(to_process_test, test_cap)
     else:
-        tested_students=fully_random_test(test_cap-len(to_process_test), tested, at_school,already_present=to_process_test)
+        tested_students=fully_random_test(test_cap, tested, at_school,already_present=to_process_test)
 
-    #print(len(to_process_test))
+    # print("length of tested people", len(to_process_test))
+    # print("length of tested people",len(tested_students))
     return tested_students
 def calculating_test_weights(school,new_positives,next_weights,second_next_weights,first_coefficient=10,second_coefficient=5):
 
