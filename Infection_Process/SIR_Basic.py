@@ -576,7 +576,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                                                )
               )
         pred_inf_time[u] = tmin + inf_time
-    print("initial infection is done")
+    #print("initial infection is done")
     # Note that when finally infected, pred_inf_time is correct
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
@@ -696,7 +696,7 @@ def _unisolate_a_node(time, times, S, E, I, P, R, Isolated, node, at_school):
     P.append(P[-1])  # one more infected tested
 
     Isolated.append(Isolated[-1]-1)
-    debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
+    #debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
 
 
 def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_args, test_func):
@@ -718,7 +718,7 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1] + new_positive)  # one more infected tested
-    debug([positive_ids,status,tested],"in testing strategy, new positives (first line). status (second line) , all already tested positive students (third line)")
+    #debug([positive_ids,status,tested],"in testing strategy, new positives (first line). status (second line) , all already tested positive students (third line)")
     Isolated.append(Isolated[-1])
     return positive_ids
 
