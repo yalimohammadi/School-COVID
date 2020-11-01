@@ -82,7 +82,8 @@ def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initi
         # plot_simple_SIR(t, S, E, I, T, R)
         # print("T= ", T)
         # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
-
+    print("FR",final_infected_FR)
+    print("RWC", final_infected_RWC)
     return np.mean(final_infected_FR), np.mean(final_infected_RWC),num_outbreak_FR/num_sim,num_outbreak_RWC/num_sim #
 
 
@@ -121,7 +122,7 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 school_sim=1
 #cohort_sizes=14
-cohort_size_list=[10,12,20]
+cohort_size_list=[10,12,14]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
     num_cohort=int(round(num_of_students_within_grade/cohort_sizes))
@@ -141,6 +142,7 @@ for cohort_sizes in cohort_size_list: #p_c in [.05]:
         print(outbreak1,outbreak2,"fraction outbrek")
 
     # plt.plot()
+
     final_num_infected_with_cohort_isolation_full_random.append(np.mean(to_plot1))
     final_num_infected_with_cohort_isolation_random_cohort.append(np.mean(to_plot2))
 
