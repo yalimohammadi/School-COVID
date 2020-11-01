@@ -711,7 +711,7 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
             new_positive+=1
             positive_ids.append(node)
             tested[node]=True
-    if len(set(to_test))<250:
+    if len(set(to_test))<200:
         print(test_func)
         debug([len(set(to_test))],"num of tests")
 
