@@ -117,7 +117,7 @@ final_num_infected_with_cohort_isolation_random_cohort=[]
 
 
 
-school_sim=20
+school_sim=4
 #cohort_sizes=14
 cohort_size_list=[10,12,14,16]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
@@ -132,7 +132,7 @@ for cohort_sizes in cohort_size_list: #p_c in [.05]:
         #plt.subplot(121)
         #nx.draw(school.network, with_labels=True, font_weight='bold')
         #plt.show()
-        avg1, avg2 = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=10)
+        avg1, avg2 = SIR_on_weighted_Graph(school.network,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=5)
         to_plot1.append(avg1/school.network.number_of_nodes())
         to_plot2.append(avg2/ school.network.number_of_nodes())
     # plt.plot()
