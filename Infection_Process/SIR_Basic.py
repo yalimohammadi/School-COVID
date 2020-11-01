@@ -607,7 +607,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                 print("next_weight",next_weight)
                 print("curr_weight",curr_weight)
             else:
-                positive_nodes = testing_strategy(cur_test_time, times, S, E, I, P, R, Isolated, status,tested,test_args,test_func) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+                positive_nodes = testing_strategy(cur_test_time, times, S, E, I, P, R, Isolated, status,tested,test_args,test_func,at_school) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if isolate:
                 new_isolated=find_isolated_cohorts(positive_nodes,school,at_school)
                 isolate_set_of_nodes(cur_test_time,times,S,E,I,P,R,Isolated,Q,new_isolated, at_school)
@@ -699,9 +699,9 @@ def _unisolate_a_node(time, times, S, E, I, P, R, Isolated, node, at_school):
     #debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
 
 
-def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_args, test_func):
+def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_args, test_func,at_school):
 
-    to_test=test_func(*test_args, tested)########Verify this
+    to_test=test_func(*test_args, tested,at_school)########Verify this
     # print(len(to_test))
     new_positive=0
     positive_ids=[]
@@ -711,6 +711,8 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
             new_positive+=1
             positive_ids.append(node)
             tested[node]=True
+    print(test_func)
+    debug([len(set(to_test))],"num of tests")
 
     times.append(time)
     S.append(S[-1])  # no change to number susceptible

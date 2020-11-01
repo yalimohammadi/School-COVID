@@ -2,12 +2,12 @@ import  random
 import math
 import numpy as np
 
-def fully_random_test(test_cap,tested, already_present=[]):
+def fully_random_test(test_cap,tested, at_school,already_present=[]):
     testable = already_present
     test_cap = int(round(test_cap)) # round to nearest integer
 
     for v in tested.keys():
-        if tested[v]==False and (v not in already_present):
+        if tested[v]==False and (v not in already_present) and at_school[v]:
             testable.append(v)
 
 
@@ -19,30 +19,35 @@ def fully_random_test(test_cap,tested, already_present=[]):
     return to_process_test
 
 
-def random_from_cohorts(school,test_cap,tested,weight=[]):
+def find_cohorts_at_school(cohort_list,at_school):
+    present_cohorts=[]
+    for cohort in cohort_list:
+        if at_school[cohort[0]]:
+            present_cohorts.append(cohort)
+    return present_cohorts
+
+def random_from_cohorts(school,test_cap,tested,at_school,weight=[]):
     # if it is not weighted pass nothing for weight
     to_process_test=[]
 
-    total_cohorts= (school.num_cohort*school.num_grades)+1
-    if len(weight)>0:
-        s=sum(weight)
-        test_probs=[w/s for w in weight]
-    else:
-        test_prob=1./total_cohorts
-        test_probs=[test_prob]*(total_cohorts)
+    at_school_cohorts=find_cohorts_at_school(school.cohorts_list, at_school)
+    total_cohorts=len(at_school_cohorts)+1 #+1 is for teachers
+
+    test_prob=1./total_cohorts
+    test_probs=[test_prob]*(total_cohorts)
 
 
     teachers_stat = dict((k, tested[k]) for k in school.teachers_id)
-    teachers_selected_tests = fully_random_test(test_probs[-1] * test_cap, teachers_stat)
+    teachers_selected_tests = fully_random_test(test_probs[-1] * test_cap, teachers_stat,at_school)
 
     to_process_test += teachers_selected_tests
 
-    for i in range(total_cohorts-1):
-        cohort=school.cohorts_list[i]
-
+    print("num at school_cohorts", len(at_school_cohorts))
+    print("tested cohort", at_school_cohorts[0][0],tested[at_school_cohorts[0][0]],at_school[at_school_cohorts[0][0]])
+    for cohort in at_school_cohorts:
         cohort_stat= dict((k, tested[k]) for k in cohort)
         #print(cohort_stat)
-        cohort_selected_tests=fully_random_test(test_probs[i]*test_cap, cohort_stat)
+        cohort_selected_tests=fully_random_test(test_cap*test_prob, cohort_stat,at_school)
 
         to_process_test+=cohort_selected_tests
 
