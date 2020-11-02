@@ -31,7 +31,7 @@ def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initi
     final_infected_FR=[]
     final_infected_RWC=[]
     outbreak= .10*G.number_of_nodes()
-    print(outbreak)
+    #print(outbreak)
     num_outbreak_FR=0
     num_outbreak_RWC=0
     number_of_tests=200
@@ -83,9 +83,9 @@ def SIR_on_weighted_Graph(G,school,removal_rate = 1.,transmission_scale=1.,initi
         # plot_simple_SIR(t, S, E, I, T, R)
         # print("T= ", T)
         # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
-    print("FR",final_infected_FR)
-    print("RWC", final_infected_RWC)
-    return np.mean(final_infected_FR), np.mean(final_infected_RWC),num_outbreak_FR/num_sim,num_outbreak_RWC/num_sim #
+    # print("FR",final_infected_FR)
+    # print("RWC", final_infected_RWC)
+    return final_infected_FR, final_infected_RWC,num_outbreak_FR/num_sim,num_outbreak_RWC/num_sim #
 
 
 
@@ -94,7 +94,7 @@ total_students=2000
 num_grades=4
 num_teachers=1
 num_of_students_within_grade=int(total_students/num_grades)
-p_c=0.05 # [0.05,0.1,,0.2,0.4]
+p_c=0.01 # [0.05,0.1,,0.2,0.4]
 cg_scale=1/10 #5 # [5,10]
 p_g=p_c*cg_scale
 alpha=0.5*2.
@@ -103,8 +103,8 @@ scale=1/5.
 intra_cohort_infection_rate=high_infection_rate*scale
 #print(intra_cohort_infection_rate)
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
-teacher_student_infection_rate=student_teacher_infection_rate=high_infection_rate
-infection_rate_between_teachers=high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
+teacher_student_infection_rate=student_teacher_infection_rate=0#high_infection_rate
+infection_rate_between_teachers=0#high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
 
 
 high_risk_probability=0 #(fixed, irrelevant for now)
@@ -116,45 +116,76 @@ final_num_infected_full_random=[]
 final_num_infected_random_cohort=[]
 final_num_infected_with_cohort_isolation_full_random=[]
 final_num_infected_with_cohort_isolation_random_cohort=[]
+final_num_outbreak_with_cohort_isolation_full_random=[]
+final_num_outbreak_with_cohort_isolation_random_cohort=[]
 #number of days to recover =  time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
 #num_days_between_exposed_infection=Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
 
 
 
-school_sim=10
+school_sim=1
+num_sim=1000
 #cohort_sizes=14
 cohort_size_list=[8,10,12,14,16]
 for cohort_sizes in cohort_size_list: #p_c in [.05]:
     #p_g = p_c * cg_scale
-    num_cohort=int(round(num_of_students_within_grade/cohort_sizes))
-    print("number of cohorts",num_cohort)
+    num_cohort=int(num_of_students_within_grade/cohort_sizes)+1
+    #print("number of cohorts", num_cohort)
+    print("Cohort size = ", cohort_sizes)
     #school = School(name="LA1",  num_grades,cohort_sizes,num_cohort,num_teachers)
     to_plot1 = []
     to_plot2 = []
+    to_plot3 = []
+    to_plot4 = []
     for i in range(school_sim):
         school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers)
-        print("School Size=", school.network.number_of_nodes())
+        print("School Size = ", school.network.number_of_nodes())
         #plt.subplot(121)
         #nx.draw(school.network, with_labels=True, font_weight='bold')
         #plt.show()
-        avg1, avg2,outbreak1,outbreak2 = SIR_on_weighted_Graph(school.network,school,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=50)
-        to_plot1.append(avg1/school.network.number_of_nodes())
-        to_plot2.append(avg2/ school.network.number_of_nodes())
-        print(outbreak1,outbreak2,"fraction outbrek")
+        avg1, avg2,outbreak1,outbreak2 = SIR_on_weighted_Graph(school.network,school,removal_rate= removal_rate,transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=num_sim)
+
+        to_plot1.append(np.mean(avg1)/school.network.number_of_nodes())
+        to_plot2.append(np.mean(avg2)/ school.network.number_of_nodes())
+        to_plot3.append(outbreak1)
+        to_plot4.append(outbreak2)
+        navg1 = [x/school.network.number_of_nodes() for x in avg1]
+        navg2 = [x/school.network.number_of_nodes() for x in avg2]
+        print("Total Fraction Infected Full Random = ", navg1)
+        print("Total Fraction Infected Random Within Cohort = ", navg2)
+        print("Fraction Outbreak Full Random = ", outbreak1)
+        print("Fraction Outbreak Random Within Cohort = ", outbreak2)
+        #print(outbreak1,outbreak2,"fraction outbrek")
 
     # plt.plot()
 
     final_num_infected_with_cohort_isolation_full_random.append(np.mean(to_plot1))
     final_num_infected_with_cohort_isolation_random_cohort.append(np.mean(to_plot2))
+    final_num_outbreak_with_cohort_isolation_full_random.append(np.mean(to_plot3))
+    final_num_outbreak_with_cohort_isolation_random_cohort.append(np.mean(to_plot4))
 
-print(final_num_infected_with_cohort_isolation_full_random)
-print(final_num_infected_with_cohort_isolation_random_cohort)
-plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_full_random,label="Full Randaom", alpha=1, color= "blue")
-plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_random_cohort,label="Randaom within cohort", alpha=1, color= "red")
+
+print("Final output:")
+print("Total Fraction Infected FR = ", final_num_infected_with_cohort_isolation_full_random)
+print("Total Fraction Infected RWC = ", final_num_infected_with_cohort_isolation_random_cohort)
+print("Fraction Outbreak FR = ", final_num_outbreak_with_cohort_isolation_full_random)
+print("Fraction Outbreak RWC = ", final_num_outbreak_with_cohort_isolation_random_cohort)
+plt.figure(1)
+plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_full_random,label="Infected: Full Random Testing", alpha=1, color= "blue")
+plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_random_cohort,label="Infected: Random within Cohort Testing", alpha=1, color= "red")
 plt.legend()
 plt.xlabel("Cohort Size")#push?
 plt.ylabel("Avg Total Fraction of Infected")
+plt.figure(2)
+plt.plot(cohort_size_list,final_num_outbreak_with_cohort_isolation_full_random,label="Outbreak: Full Random Testing", alpha=1, color= "blue")
+plt.plot(cohort_size_list,final_num_outbreak_with_cohort_isolation_random_cohort,label="Outbreak: Random within Cohort Testing", alpha=1, color= "red")
+plt.legend()
+plt.xlabel("Cohort Size")#push?
+plt.ylabel("Fraction of Outbreak")
 plt.show()
+
+
+
 
 # plot_simple_SIR(t,S,I,R)
 #print(T)
