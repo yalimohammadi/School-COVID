@@ -43,7 +43,7 @@ class Grade:
 
 
 class School:
-    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers,p_c=1./7.,p_g=1./35.,high_risk_probability=0.0,high_infection_rate=1.,low_infection_rate=.5,intra_cohort_infection_rate=1.,teacher_student_infection_rate=1.,student_teacher_infection_rate=1.,infection_rate_between_teachers=1.,max_num_students=2000):
+    def __init__(self, name, num_grades,cohort_sizes,num_cohort,num_teachers,p_c=1./7.,p_g=1./35.,high_risk_probability=0.0,high_infection_rate=1.,low_infection_rate=.5,intra_cohort_infection_rate=1.,teacher_student_infection_rate=1.,student_teacher_infection_rate=1.,infection_rate_between_teachers=1.,max_num_students=2000,capacity_of_bus=25,num_of_cohorts_per_bus=2,bus_interaction_rate=1/10):
         self.name = name
         self.size = num_grades*num_cohort*cohort_sizes+num_teachers
         self.num_grades = num_grades
@@ -55,7 +55,7 @@ class School:
         self.student_to_cohort = dict()
         self.teachers = self.generate_teachers(num_teachers=num_teachers,infection_rate_between_teachers=infection_rate_between_teachers)
         self.teachers_id = []
-        self.network = self.generate_school_network(p_c=p_c,p_g=p_g,Cohort_Size=cohort_sizes,Num_Cohorts=num_cohort,Num_Grades= num_grades,intra_cohort_infection_rate=intra_cohort_infection_rate,teacher_student_infection_rate=teacher_student_infection_rate,student_teacher_infection_rate=student_teacher_infection_rate,max_num_students=max_num_students)
+        self.network = self.generate_school_network(p_c=p_c,p_g=p_g,Cohort_Size=cohort_sizes,Num_Cohorts=num_cohort,Num_Grades= num_grades,intra_cohort_infection_rate=intra_cohort_infection_rate,teacher_student_infection_rate=teacher_student_infection_rate,student_teacher_infection_rate=student_teacher_infection_rate,max_num_students=max_num_students,capacity_of_bus=capacity_of_bus,num_of_cohorts_per_bus=num_of_cohorts_per_bus,bus_interaction_rate=bus_interaction_rate)
 
 
     def generate_grades(self,num_grades,num_cohorts,cohort_size,high_risk_probability, high_infection_rate, low_infection_rate):
@@ -81,7 +81,7 @@ class School:
 
     def generate_school_network(self, Cohort_Size, Num_Cohorts, Num_Grades,p_c=1/7, p_g=1/35,
                                     intra_cohort_infection_rate=.1, teacher_student_infection_rate=3 / 7,
-                                    student_teacher_infection_rate=3 / 7,max_num_students=2000):
+                                    student_teacher_infection_rate=3 / 7,max_num_students=2000,capacity_of_bus=25,num_of_cohorts_per_bus=2,bus_interaction_rate=1/10):
 
         # each school has a few grades and each grades has a number of cohorts
         # Num_Cohorts shows the number of cohorts in one grade
@@ -127,8 +127,12 @@ class School:
                 teacher_edges+=new_edge
 
         # print("t_edges",teacher_edges)
+        bus=[]
         school_network.add_weighted_edges_from(teacher_edges)
         school_network.add_weighted_edges_from(intra_cohort_network.edges.data("weight", default=intra_cohort_infection_rate))
+
+
+
 
 
         for v in range(max_num_students+num_teachers, school_network.number_of_nodes()):
@@ -136,6 +140,35 @@ class School:
         #write code here, including weights according to intra_grade_infection_rate
 
         # print(school_network.edges.data)
+        #code for school bus starts here
+        b=0
+        num_of_bus=int(np.ceil((Cohort_Size*Num_Cohorts*Num_Grades)/capacity_of_bus))
+        num_of_students_per_bus_per_cohort=min(capacity_of_bus/num_of_cohorts_per_bus,Cohort_Size)
+        cap=np.zeros(int(num_of_bus))
+        bus=np.ones(school_network.number_of_nodes())*-1
+        for i in np.random.permutation(range(total_cohorts)):
+            iterm=0
+            for c in np.random.permutation(self.cohorts_list[i]):
+                if c>=max_num_students+num_teachers:
+                    continue
+                while cap[b]>=capacity_of_bus:
+                    b=(b+1)%num_of_bus
+                    iterm=0
+                bus[c]=b
+                cap[b]=cap[b]+1
+                iterm = (iterm + 1)%num_of_students_per_bus_per_cohort
+                if iterm==0:
+                    b=(b+1)%num_of_bus
+        bus_edges=[]
+        for c in range(num_teachers,num_teachers+max_num_students):
+            for cp in range(num_teachers,num_teachers+max_num_students):
+                if c==cp:
+                    continue
+                if bus[c]==bus[cp]:
+                    bus_edges.append((c,cp,bus_interaction_rate))
+
+        school_network.add_weighted_edges_from(bus_edges)
+
         return school_network
 
 

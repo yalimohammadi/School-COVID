@@ -105,10 +105,12 @@ intra_cohort_infection_rate=high_infection_rate*scale
 #intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
 teacher_student_infection_rate=student_teacher_infection_rate=0#high_infection_rate
 infection_rate_between_teachers=0#high_infection_rate*scale #teachers are similar to cohorts, meaning they have a complete graph.
-
+capacity_of_bus=25
+num_of_cohorts_per_bus=2
+bus_interaction_rate=1/10
 
 high_risk_probability=0 #(fixed, irrelevant for now)
-initial_fraction_infected=  #initial fraction infected (fix this)
+initial_fraction_infected=0.0001 #initial fraction infected (fix this)
 transmission_scale= 1 #transmission rate per edge (fix this)
 removal_rate = 1/10#recovery rate per node (fix this)
 
@@ -120,8 +122,6 @@ final_num_outbreak_with_cohort_isolation_full_random=[]
 final_num_outbreak_with_cohort_isolation_random_cohort=[]
 #number of days to recover =  time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
 #num_days_between_exposed_infection=Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
-
-
 
 school_sim=1
 num_sim=1000
@@ -140,7 +140,7 @@ for p_c in interaction_list: #cohort_sizes in cohort_size_list: #
     to_plot3 = []
     to_plot4 = []
     for i in range(school_sim):
-        school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers)
+        school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers,capacity_of_bus=capacity_of_bus,num_of_cohorts_per_bus=num_of_cohorts_per_bus,bus_interaction_rate=bus_interaction_rate)
         print("School Size = ", school.network.number_of_nodes())
         #plt.subplot(121)
         #nx.draw(school.network, with_labels=True, font_weight='bold')
