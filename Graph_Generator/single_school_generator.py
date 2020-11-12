@@ -118,7 +118,7 @@ class School:
 
 
         teacher_edges=[]
-        num_cohorts_per_teacher=0
+        num_cohorts_per_teacher = 1
         total_cohorts=self.num_cohort*self.num_grades
         for t in self.teachers_id:
             for i in range(num_cohorts_per_teacher):
@@ -140,34 +140,35 @@ class School:
         #write code here, including weights according to intra_grade_infection_rate
 
         # print(school_network.edges.data)
-        #code for school bus starts here
-        b=0
-        num_of_bus=int(np.ceil((Cohort_Size*Num_Cohorts*Num_Grades)/capacity_of_bus))
-        num_of_students_per_bus_per_cohort=min(capacity_of_bus/num_of_cohorts_per_bus,Cohort_Size)
-        cap=np.zeros(int(num_of_bus))
-        bus=np.ones(school_network.number_of_nodes())*-1
-        for i in np.random.permutation(range(total_cohorts)):
-            iterm=0
-            for c in np.random.permutation(self.cohorts_list[i]):
-                if c>=max_num_students+num_teachers:
-                    continue
-                while cap[b]>=capacity_of_bus:
-                    b=(b+1)%num_of_bus
-                    iterm=0
-                bus[c]=b
-                cap[b]=cap[b]+1
-                iterm = (iterm + 1)%num_of_students_per_bus_per_cohort
-                if iterm==0:
-                    b=(b+1)%num_of_bus
-        bus_edges=[]
-        for c in range(num_teachers,num_teachers+max_num_students):
-            for cp in range(num_teachers,num_teachers+max_num_students):
-                if c==cp:
-                    continue
-                if bus[c]==bus[cp]:
-                    bus_edges.append((c,cp,bus_interaction_rate))
 
-        school_network.add_weighted_edges_from(bus_edges)
+        # #code for school bus starts here
+        # b=0
+        # num_of_bus=int(np.ceil((Cohort_Size*Num_Cohorts*Num_Grades)/capacity_of_bus))
+        # num_of_students_per_bus_per_cohort=min(capacity_of_bus/num_of_cohorts_per_bus,Cohort_Size)
+        # cap=np.zeros(int(num_of_bus))
+        # bus=np.ones(school_network.number_of_nodes())*-1
+        # for i in np.random.permutation(range(total_cohorts)):
+        #     iterm=0
+        #     for c in np.random.permutation(self.cohorts_list[i]):
+        #         if c>=max_num_students+num_teachers:
+        #             continue
+        #         while cap[b]>=capacity_of_bus:
+        #             b=(b+1)%num_of_bus
+        #             iterm=0
+        #         bus[c]=b
+        #         cap[b]=cap[b]+1
+        #         iterm = (iterm + 1)%num_of_students_per_bus_per_cohort
+        #         if iterm==0:
+        #             b=(b+1)%num_of_bus
+        # bus_edges=[]
+        # for c in range(num_teachers,num_teachers+max_num_students):
+        #     for cp in range(num_teachers,num_teachers+max_num_students):
+        #         if c==cp:
+        #             continue
+        #         if bus[c]==bus[cp]:
+        #             bus_edges.append((c,cp,bus_interaction_rate))
+        #
+        # school_network.add_weighted_edges_from(bus_edges)
 
         return school_network
 
