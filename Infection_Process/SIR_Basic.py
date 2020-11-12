@@ -5,6 +5,8 @@ import numpy as np
 import EoN
 from collections import defaultdict
 from scipy.stats import weibull_min
+
+
 from collections import Counter
 
 
@@ -599,13 +601,25 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         next_weight[-1]=10#last index is for teachers
 
     community_spread_time =tmin+2
+
+    transmision_from_community = 0
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
         #COMMUNITY SPREAD CODE
+
         if community_spread_time < cur_time and community_spread_time <= cur_test_time:
-            community_infections = random.sample(G.nodes(), int(round(G.order() * fraction_of_infections_from_community_per_day)))
+
+            # print("")
+            # community_infections = random.sample(G.nodes(), int(round(G.order() * fraction_of_infections_from_community_per_day)))
+            # if the fraction of outside is less than 1/size of school, this will be zero
+            # change it to binomial maybr?
+            indices=(np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
+            community_infections= np.where(indices==1)[0]
+
             for u in community_infections:
+
                 if status[u]=='S':
+                    transmision_from_community+=1
                     times.append(community_spread_time)
                     S.append(S[-1] - 1)  # no change to number susceptible
                     I.append(I[-1])  # one less infected
@@ -648,7 +662,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         else:
             Q.pop_and_run()
 
-
+    print("total transmission from community",transmision_from_community, "in time", times[-1])
     # the initial infections were treated as ordinary infection events at
     # time 0.
     # So each initial infection added an entry at time 0 to lists.
@@ -744,9 +758,9 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
             new_positive+=1
             positive_ids.append(node)
             tested[node]=True
-    if len(set(to_test))<200:
-        print(test_func)
-        debug([len(set(to_test))],"num of tests")
+    # if len(set(to_test))<200:
+    #     print(test_func)
+    #     debug([len(set(to_test))],"num of tests")
 
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
@@ -897,6 +911,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
 
         trans_delay, rec_delay = trans_and_rec_time_fxn(target, suscep_neighbors,
                                                         *trans_and_rec_time_args)
+        # print("trans_delay, rec_delay", trans_delay, rec_delay)
 
         rec_time[target] = time + rec_delay
         if rec_time[target] <= Q.tmax:
@@ -1005,7 +1020,6 @@ def _process_rec_SIR_(time, node, times, S, E, I, P, R, Isolated, status):
     R.append(R[-1] + 1)  # one more recovered
     Isolated.append(Isolated[-1])
     status[node] = 'R'
-
 
 
 
