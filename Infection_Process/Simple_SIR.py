@@ -36,7 +36,7 @@ def print_infected_teachers(status):
 
 
 
-def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=30) -> object:
+def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=14) -> object:
     final_infected_FR=[]
     within_school_final_infected_FR = []
     final_infected_RWC=[0]
@@ -97,7 +97,7 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
 
 
 school_sim=1
-num_sim=200
+num_sim= 200
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
@@ -183,10 +183,13 @@ cg_scale = 1   # 1/10 #5 # [5,10]
 intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
 #Fraction of Testing
 testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
+# testing_fraction_list = [0]
 #per day what fraction of students are infected from the community.
 fraction_community_list = [0.05/100, 0.1/100, 0.5/100, 1/100] #4.7/(1000.*7.)
 
+
 for testing_fraction in testing_fraction_list:
+    data_to_dump=[]
     print("Testing Fraction = ", testing_fraction)
     fig, ax = plt.subplots(nrows=len(pc_list), ncols=len(intra_cohort_infection_list), sharey=True)
     fig.suptitle('Fraction of School Tested Per Day: ' + str(testing_fraction), fontsize=16)
@@ -197,6 +200,7 @@ for testing_fraction in testing_fraction_list:
         p_g = p_c * cg_scale
         ax_j = 0
         for intra_cohort_infection_rate in intra_cohort_infection_list: #cohort_sizes in cohort_size_list: #
+
             print("          Intra cohort infection rate = ", intra_cohort_infection_rate)
 
             data_violin_plot = []
@@ -236,15 +240,16 @@ for testing_fraction in testing_fraction_list:
                     #print(outbreak1,outbreak2,"fraction outbrek")
 
 
+
                 final_num_infected_with_cohort_isolation_full_random.append(np.mean(to_plot1))
                 final_num_infected_with_cohort_isolation_random_cohort.append(np.mean(to_plot2))
                 final_num_outbreak_with_cohort_isolation_full_random.append(np.mean(to_plot3))
                 final_num_outbreak_with_cohort_isolation_random_cohort.append(np.mean(to_plot4))
 
             #plt.figure(1)
-
+            data_to_dump.append([("p_c",intra_cohort_infection_rate),("ICI",fraction_infected_at_each_time_step_from_community),data_violin_plot])
             ax[ax_i,ax_j].set_title('PC Value: ' + str(p_c) + ', ICI Rate: ' + str(np.round(intra_cohort_infection_rate, 3)), color='blue')
-            ax[ax_i,ax_j].set_ylabel('Fraction Infected Within 30 days')
+            ax[ax_i,ax_j].set_ylabel('Fraction Infected Within 14 days')
             ax[ax_i,ax_j].violinplot(data_violin_plot)
             #labels = ['Community Infection:', 'Community Infection:', 'Fraction Infected From \n Community Per Day:']
             #set_axis_style(ax, labels, intra_cohort_infection_rate)
@@ -258,8 +263,15 @@ for testing_fraction in testing_fraction_list:
 
 
 
-plt.show()
 
+
+plt.show()
+import pickle
+
+# define a list of places
+with open('output_violin.data', 'wb') as filehandle:
+    # store the data as binary data stream
+    pickle.dump(data_to_dump, filehandle)
 
 # print("Final output:")
 # print("Total Fraction Infected FR = ", final_num_infected_with_cohort_isolation_full_random)
