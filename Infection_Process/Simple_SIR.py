@@ -87,7 +87,7 @@ def SIR_on_weighted_Graph(G,school,fraction_infected_at_each_time_step_from_comm
 
 
 
-total_students= 6*12*20 #2000
+total_students= 6*12*20 #1000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
 cohort_sizes=12
@@ -119,7 +119,7 @@ infection_rate_between_teachers=0.0 #no interaction between teachers
 
 #Initial infected and community spread
 initial_fraction_infected=0.0001 #initial fraction infected (fix this)
-fraction_infected_at_each_time_step_from_community=4.7/(100.*7.)  #per day what fraction of students are infected from the community.
+fraction_infected_at_each_time_step_from_community=4.7/(100.*30.)  #per day what fraction of students are infected from the community.
 
 
 
@@ -130,7 +130,7 @@ bus_interaction_rate=1/10
 
 high_risk_probability=0 #(fixed, irrelevant for now)
 transmission_scale= 1 #transmission rate per edge (fix this)
-removal_rate = 1/10#recovery rate per node (fix this)
+removal_rate = 1./7. #recovery rate per node (fix this)
 
 final_num_infected_full_random=[]
 final_num_infected_random_cohort=[]
@@ -142,7 +142,7 @@ final_num_outbreak_with_cohort_isolation_random_cohort= []
 #num_days_between_exposed_infection=Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
 
 school_sim=1
-num_sim=200
+num_sim=2
 interaction_list=[1]
 
 intra_cohort_infection_list= np.linspace(0,low_infection_rate/2.,5)
@@ -191,16 +191,17 @@ print("Total Fraction Infected RWC = ", final_num_infected_with_cohort_isolation
 print("Fraction Outbreak FR = ", final_num_outbreak_with_cohort_isolation_full_random)
 print("Fraction Outbreak RWC = ", final_num_outbreak_with_cohort_isolation_random_cohort)
 plt.figure(1)
-plt.plot(intra_cohort_infection_list,final_num_infected_with_cohort_isolation_full_random,label="Infected: Full Random Testing", alpha=1, color= "blue")
+plt.bar(intra_cohort_infection_list,final_num_infected_with_cohort_isolation_full_random,label="Infected: Full Random Testing", alpha=1, color= "blue")
 # plt.plot(interaction_list,final_num_infected_with_cohort_isolation_random_cohort,label="Infected: Random within Cohort Testing", alpha=1, color= "red")
 # plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_full_random,label="Infected: Full Random Testing", alpha=1, color= "blue")
 # plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_random_cohort,label="Infected: Random within Cohort Testing", alpha=1, color= "red")
 plt.legend()
+plt.title("Number of students infected in 30 days, with community prevalence=4.7")
 plt.xlabel("Across cohort infection rate")
 #plt.xlabel("Cohort Size")#push?
 plt.ylabel("Avg Total Fraction of Infected")
 plt.figure(2)
-plt.plot(intra_cohort_infection_list,final_num_outbreak_with_cohort_isolation_full_random,label="Outbreak: Full Random Testing", alpha=1, color= "blue")
+plt.bar(intra_cohort_infection_list,final_num_outbreak_with_cohort_isolation_full_random,label="Outbreak: Full Random Testing", alpha=1, color= "blue")
 # plt.plot(interaction_list,final_num_outbreak_with_cohort_isolation_random_cohort,label="Outbreak: Random within Cohort Testing", alpha=1, color= "red")
 # plt.plot(cohort_size_list,final_num_outbreak_with_cohort_isolation_full_random,label="Outbreak: Full Random Testing", alpha=1, color= "blue")
 # plt.plot(cohort_size_list,final_num_outbreak_with_cohort_isolation_random_cohort,label="Outbreak: Random within Cohort Testing", alpha=1, color= "red")
