@@ -187,6 +187,7 @@ testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
 #per day what fraction of students are infected from the community.
 fraction_community_list = [0.05/100, 0.1/100, 0.5/100, 1/100] #4.7/(1000.*7.)
 
+import pickle
 
 for testing_fraction in testing_fraction_list:
     data_to_dump=[]
@@ -257,6 +258,10 @@ for testing_fraction in testing_fraction_list:
             ax_j=ax_j+1
 
         ax_i = ax_i+1
+    # define a list of places
+    with open('output_violin'+str(testing_fraction)+'.data', 'wb') as filehandle:
+        # store the data as binary data stream
+        pickle.dump(data_to_dump, filehandle)
 
 
 
@@ -266,12 +271,9 @@ for testing_fraction in testing_fraction_list:
 
 
 plt.show()
-import pickle
 
-# define a list of places
-with open('output_violin.data', 'wb') as filehandle:
-    # store the data as binary data stream
-    pickle.dump(data_to_dump, filehandle)
+
+
 
 # print("Final output:")
 # print("Total Fraction Infected FR = ", final_num_infected_with_cohort_isolation_full_random)
