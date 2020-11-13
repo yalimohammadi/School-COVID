@@ -181,7 +181,7 @@ cg_scale = 1 / 10  # 1/10 #5 # [5,10]
 #intra_cohort_infection_rate
 intra_cohort_infection_list= np.linspace(0,low_infection_rate/2.,3)
 #Fraction of Testing
-testing_fraction_list = [0.25]#[0,0.1,0.25,0.5,1]
+testing_fraction_list = [0,0.1,0.25,0.5,0.75,1]
 #per day what fraction of students are infected from the community.
 fraction_community_list = [4.7/(1000.*14.), 4.7/(1000.*7.), 4.7/(1000.*14.) * 3]
 
