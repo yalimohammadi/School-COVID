@@ -96,7 +96,8 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
 
 
 
-
+school_sim=1
+num_sim=200
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
@@ -106,7 +107,7 @@ num_cohort=int(num_of_students_within_grade/cohort_sizes)
 num_teachers = num_cohort*num_grades
 
 
-
+print('School Size = ', total_students+num_teachers)
 
 
 
@@ -134,8 +135,7 @@ final_num_outbreak_with_cohort_isolation_random_cohort= []
 #number of days to recover =  time to recovery for non-hospitalized cases (mean: 13.1 days, 95% CI: 8.3, 16.9)
 #num_days_between_exposed_infection=Weibull distribution with mean 5.4 days (95% CI: 2.4, 8.3)
 
-school_sim=1
-num_sim=100
+
 interaction_list=[1]
 
 
@@ -181,14 +181,15 @@ cg_scale = 1 / 10  # 1/10 #5 # [5,10]
 #intra_cohort_infection_rate
 intra_cohort_infection_list= np.linspace(0,low_infection_rate/2.,3)
 #Fraction of Testing
-testing_fraction_list = [0.25] #[0,0.1,0.25,0.5,1]
+testing_fraction_list = [0.25]#[0,0.1,0.25,0.5,1]
 #per day what fraction of students are infected from the community.
-fraction_community_list=[4.7/(1000.*7.) * 0.5, 4.7/(1000.*7.), 4.7/(1000.*7.) *2]
+fraction_community_list = [4.7/(1000.*14.), 4.7/(1000.*7.), 4.7/(1000.*14.) * 3]
 
 for testing_fraction in testing_fraction_list:
     print("Testing Fraction = ", testing_fraction)
-    fig, ax = plt.subplots(nrows=3, ncols=len(intra_cohort_infection_list), sharey=True)
-    plt.subplots_adjust(top=0.95, bottom=0.05, hspace=0.5, wspace=0.1)
+    fig, ax = plt.subplots(nrows=len(pc_list), ncols=len(intra_cohort_infection_list), sharey=True)
+    fig.suptitle('Fraction of School Tested Per Day: ' + str(testing_fraction), fontsize=16)
+    plt.subplots_adjust(top=0.90, bottom=0.05, hspace=0.5, wspace=0.1)
     ax_i = 0
     for p_c in pc_list:
         print("     p_c value = ",p_c)
@@ -241,8 +242,8 @@ for testing_fraction in testing_fraction_list:
 
             #plt.figure(1)
 
-            ax[ax_i,ax_j].set_title('PC Value: ' + str(p_c) + ', ICI Rate: ' + str(np.round(intra_cohort_infection_rate, 3)))
-            ax[ax_i,ax_j].set_ylabel('Fraction Infected Within School')
+            ax[ax_i,ax_j].set_title('PC Value: ' + str(p_c) + ', ICI Rate: ' + str(np.round(intra_cohort_infection_rate, 3)), color='blue')
+            ax[ax_i,ax_j].set_ylabel('Fraction Infected Within 30 days')
             ax[ax_i,ax_j].violinplot(data_violin_plot)
             #labels = ['Community Infection:', 'Community Infection:', 'Fraction Infected From \n Community Per Day:']
             #set_axis_style(ax, labels, intra_cohort_infection_rate)
