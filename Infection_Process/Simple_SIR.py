@@ -283,7 +283,7 @@ with open('output_violin.data', 'wb') as filehandle:
 # # plt.plot(interaction_list,final_num_infected_with_cohort_isolation_random_cohort,label="Infected: Random within Cohort Testing", alpha=1, color= "red")
 # # plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_full_random,label="Infected: Full Random Testing", alpha=1, color= "blue")
 # # plt.plot(cohort_size_list,final_num_infected_with_cohort_isolation_random_cohort,label="Infected: Random within Cohort Testing", alpha=1, color= "red")
-# plt.legend()
+# plt.legend()sorr
 # plt.xlabel("Across cohort infection rate")
 # #plt.xlabel("Cohort Size")#push?
 # plt.ylabel("Avg Total Fraction of Infected")
