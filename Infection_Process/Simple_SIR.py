@@ -106,6 +106,7 @@ cohort_sizes=12
 num_cohort=int(num_of_students_within_grade/cohort_sizes)
 num_teachers = num_cohort*num_grades
 
+school_size=total_students+num_teachers
 
 print('School Size = ', total_students+num_teachers)
 
@@ -176,14 +177,14 @@ infection_rate_between_teachers=low_infection_rate*0.05 #we will fix this for No
 #Edges of the graph: As discussed we will assume a complete graph for now
 
 #p_c will take three different values low, mid, high
-pc_list = [0.01,0.05,0.25]
-cg_scale = 1 / 10  # 1/10 #5 # [5,10]
+pc_list = [2/total_students, 5/total_students, 10/total_students]
+cg_scale = 1   # 1/10 #5 # [5,10]
 #intra_cohort_infection_rate
-intra_cohort_infection_list= np.linspace(0,low_infection_rate/2.,3)
+intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
 #Fraction of Testing
-testing_fraction_list = [0,0.1,0.25,0.5,0.75,1]
+testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
 #per day what fraction of students are infected from the community.
-fraction_community_list = [4.7/(1000.*14.), 4.7/(1000.*7.), 4.7/(1000.*14.) * 3]
+fraction_community_list = [0.05/100, 0.1/100, 0.5/100, 1/100] #4.7/(1000.*7.)
 
 for testing_fraction in testing_fraction_list:
     print("Testing Fraction = ", testing_fraction)
