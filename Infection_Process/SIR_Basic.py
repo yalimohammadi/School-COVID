@@ -172,7 +172,7 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
              rho=None, tmin=0, tmax=float('Inf'), transmission_weight=None,
              recovery_weight=None, return_full_data=False, sim_kwargs=None,
-             all_test_times=[], fraction_of_infections_from_community_per_day=0, test_args=None,test_func=None,weighted_test=True,school=None, isolate=False):
+             all_test_times=[], fraction_of_infections_from_community_per_day=0.0, test_args=None,test_func=None,weighted_test=True,school=None, isolate=False):
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
@@ -339,7 +339,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        initial_recovereds=None,
                        rho=None, tmin=0, tmax=float('Inf'),
                        return_full_data=False, sim_kwargs=None,
-                       all_test_times=[], fraction_of_infections_from_community_per_day=0, test_args=(), test_func=None,
+                       all_test_times=[], fraction_of_infections_from_community_per_day=0.0, test_args=(), test_func=None,
                        weighted_test=True, school=None,isolate=False):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
@@ -584,7 +584,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
 
-    all_test_times=[i+tmin+3 for i in all_test_times] # calibrate with min simulation time
+    all_test_times=[i+tmin+1 for i in all_test_times] # calibrate with min simulation time
     cur_test_time = tmax + 10
     if len(all_test_times) > 0:
         cur_test_time = all_test_times.pop(0)
@@ -662,7 +662,10 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         else:
             Q.pop_and_run()
 
-    print("total transmission from community",transmision_from_community, "in time", times[-1])
+    # print("total transmission from community",transmision_from_community, "in time", times[-1])
+
+
+
     # the initial infections were treated as ordinary infection events at
     # time 0.
     # So each initial infection added an entry at time 0 to lists.
@@ -676,7 +679,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     Isolated = Isolated[len(initial_infecteds):]
     if not return_full_data:
         return np.array(times), np.array(S), np.array(E), np.array(I), \
-               np.array(P), np.array(R), np.array(Isolated),status
+               np.array(P), np.array(R), np.array(Isolated),status,transmision_from_community
     else:
         # strip pred_inf_time and rec_time down to just the values for nodes
         # that became infected
