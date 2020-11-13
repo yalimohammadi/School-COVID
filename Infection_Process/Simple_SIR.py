@@ -49,7 +49,7 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
                                rho=initial_fraction_infected, all_test_times = np.linspace(0,tmax,tmax+1), fraction_of_infections_from_community_per_day=fraction_infected_at_each_time_step_from_community, test_args=(number_of_tests,),test_func=Simple_Random.fully_random_test,
                                                  weighted_test=False,school=school,isolate=True,tmax=tmax)
         final_infected_FR.append(R[-1]+I[-1]) # Since the process has not ended, we need to add I[-1]
-        within_school_final_infected_FR.append(R[-1] + I[-1]-total_infections_from_community-initial_fraction_infected*school.network.number_of_nodes())
+        within_school_final_infected_FR.append(R[-1] + I[-1]) #-total_infections_from_community-initial_fraction_infected*school.network.number_of_nodes()
         if R[-1]>outbreak:
             num_outbreak_FR+=1
         # #print_infected_teachers(status)
