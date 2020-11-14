@@ -182,8 +182,9 @@ cg_scale = 1   # 1/10 #5 # [5,10]
 #intra_cohort_infection_rate
 intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
 #Fraction of Testing
-testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
-# testing_fraction_list = [0]
+# testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
+testing_fraction_list = [0.5]
+
 #per day what fraction of students are infected from the community.
 fraction_community_list = [0.05/100, 0.1/100, 0.5/100, 1/100] #4.7/(1000.*7.)
 
@@ -248,7 +249,7 @@ for testing_fraction in testing_fraction_list:
                 final_num_outbreak_with_cohort_isolation_random_cohort.append(np.mean(to_plot4))
 
             #plt.figure(1)
-            data_to_dump.append([("p_c",intra_cohort_infection_rate),("ICI",fraction_infected_at_each_time_step_from_community),data_violin_plot])
+            data_to_dump.append([("p_c",p_c),("ICI",intra_cohort_infection_rate),data_violin_plot])
             ax[ax_i,ax_j].set_title('PC Value: ' + str(p_c) + ', ICI Rate: ' + str(np.round(intra_cohort_infection_rate, 3)), color='blue')
             ax[ax_i,ax_j].set_ylabel('Fraction Infected Within 14 days')
             ax[ax_i,ax_j].violinplot(data_violin_plot)
