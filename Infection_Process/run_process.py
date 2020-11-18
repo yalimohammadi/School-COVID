@@ -1,8 +1,6 @@
 import Infection_Process.SIR_Basic as EoN
 from Graph_Generator.single_school_generator import School
 import numpy as np
-import scipy as sp
-import networkx as nx
 import pandas as pd
 
 from Testing_Strategies import Simple_Random
