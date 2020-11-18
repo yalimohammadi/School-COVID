@@ -135,7 +135,7 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
 
 
 school_sim=1
-num_sim=200
+num_sim=50
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
@@ -215,16 +215,16 @@ infection_rate_between_teachers=low_infection_rate*0.05 #we will fix this for No
 #Edges of the graph: As discussed we will assume a complete graph for now
 
 #p_c will take three different values low, mid, high
-pc_list = [5/total_students] #,5/total_students 10/total_students
+pc_list = [2/total_students] #,5/total_students 10/total_students
 cg_scale = 1   # 1/10 #5 # [5,10]
 #intra_cohort_infection_rate
-intra_cohort_infection_list= [low_infection_rate/5] #  , low_infection_rate/5 low_infection_rate
+intra_cohort_infection_list= [low_infection_rate/10] #  , low_infection_rate/5 low_infection_rate
 #Fraction of Testing
-testing_fraction_list = [0.1, 0.2]
+testing_fraction_list = [0, 0.1, 0.2, 1]
 #testing_fraction_list = [0.5]
 
 #per day what fraction of students are infected from the community.
-fraction_community_list = [0.05/100] #, 0.1/100, 0.5/100 4.7/(1000.*7.)
+fraction_community_list = [0.04/100] #, 0.1/100, 0.5/100 4.7/(1000.*7.)
 
 import pickle
 
@@ -262,6 +262,7 @@ for testing_fraction in testing_fraction_list:
 
                     plot_days=[outbreak30,outbreak60,outbreak90,outbreak120,outbreak150]
                     days=[30,60,90,120,150]
+
                     if testing_fraction<0.15:
                         plt.plot(days, plot_days, label="10% Testing", alpha=1, color="r")
                     else:
