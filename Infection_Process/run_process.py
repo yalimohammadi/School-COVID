@@ -10,7 +10,7 @@ from Testing_Strategies import Simple_Random
 
 
 
-def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=30) -> object:
+def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=60) -> object:
     final_infected_FR=[]
     within_school_final_infected_FR = []
     # final_infected_RWC=[0]
@@ -31,9 +31,8 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
 
 
 
-
 school_sim=1
-num_sim= 2
+num_sim= 200
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
