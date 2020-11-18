@@ -36,13 +36,17 @@ def print_infected_teachers(status):
 
 
 
-def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=30) -> object:
+def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=160) -> object:
     final_infected_FR=[]
     within_school_final_infected_FR = []
     final_infected_RWC=[0]
-    outbreak= .10*G.number_of_nodes()
+    outbreak= .05*G.number_of_nodes()
     #print(outbreak)
-    num_outbreak_FR=0
+    num_outbreak_FR30=0.0
+    num_outbreak_FR60 = 0.0
+    num_outbreak_FR90 = 0.0
+    num_outbreak_FR120 = 0.0
+    num_outbreak_FR150 = 0.0
     num_outbreak_RWC=0
     for i in range(num_sim):
         t,S,E,I,T,R,Isolated,status,total_infections_from_community=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
@@ -50,8 +54,42 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
                                                  weighted_test=False,school=school,isolate=True,tmax=tmax)
         final_infected_FR.append(R[-1]+I[-1]) # Since the process has not ended, we need to add I[-1]
         within_school_final_infected_FR.append(R[-1] + I[-1]) #-total_infections_from_community-initial_fraction_infected*school.network.number_of_nodes()
-        if R[-1]>outbreak:
-            num_outbreak_FR+=1
+        k=0
+        total_infected30=0
+        total_infected60=0
+        total_infected90=0
+        total_infected120=0
+        total_infected150=0
+        for k in range(len(t)):
+            if t[k]<=30:
+                total_infected30=R[k]+I[k]
+
+            if t[k]<=60:
+                total_infected60=R[k]+I[k]
+
+            if t[k]<=90:
+                total_infected90=R[k]+I[k]
+
+            if t[k]<=120:
+                total_infected120=R[k]+I[k]
+
+            if t[k]<=150:
+                total_infected150=R[k]+I[k]
+
+        if total_infected30>outbreak:
+            num_outbreak_FR30+=1
+
+        if total_infected60>outbreak:
+            num_outbreak_FR60+=1
+
+        if total_infected90>outbreak:
+            num_outbreak_FR90+=1
+
+        if total_infected120>outbreak:
+            num_outbreak_FR120+=1
+
+        if total_infected150>outbreak:
+            num_outbreak_FR150+=1
         # #print_infected_teachers(status)
         # print("Infected", I)
         # plot_simple_SIR(t, S, E, I, T, R,Isolated,name="full random")
@@ -92,12 +130,12 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
         # print("Weighted testing strategy: Total number of infected= ", R[len(R) - 1])
     # print("FR",final_infected_FR)
     # print("RWC", final_infected_RWC)
-    return final_infected_FR, within_school_final_infected_FR, final_infected_RWC,num_outbreak_FR/num_sim,num_outbreak_RWC/num_sim #
+    return final_infected_FR, within_school_final_infected_FR, final_infected_RWC,num_outbreak_FR30/num_sim,num_outbreak_FR60/num_sim,num_outbreak_FR90/num_sim,num_outbreak_FR120/num_sim,num_outbreak_FR150/num_sim#num_outbreak_RWC/num_sim #
 
 
 
 school_sim=1
-num_sim= 200
+num_sim=200
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
@@ -177,25 +215,25 @@ infection_rate_between_teachers=low_infection_rate*0.05 #we will fix this for No
 #Edges of the graph: As discussed we will assume a complete graph for now
 
 #p_c will take three different values low, mid, high
-pc_list = [2/total_students, 5/total_students, 10/total_students]
+pc_list = [5/total_students] #,5/total_students 10/total_students
 cg_scale = 1   # 1/10 #5 # [5,10]
 #intra_cohort_infection_rate
-intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
+intra_cohort_infection_list= [low_infection_rate/5] #  , low_infection_rate/5 low_infection_rate
 #Fraction of Testing
-# testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
-testing_fraction_list = [0.5]
+testing_fraction_list = [0.1, 0.2]
+#testing_fraction_list = [0.5]
 
 #per day what fraction of students are infected from the community.
-fraction_community_list = [0.05/100, 0.1/100, 0.5/100, 1/100] #4.7/(1000.*7.)
+fraction_community_list = [0.05/100] #, 0.1/100, 0.5/100 4.7/(1000.*7.)
 
 import pickle
 
 for testing_fraction in testing_fraction_list:
     data_to_dump=[]
     print("Testing Fraction = ", testing_fraction)
-    fig, ax = plt.subplots(nrows=len(pc_list), ncols=len(intra_cohort_infection_list), sharey=True)
-    fig.suptitle('Fraction of School Tested Per Day: ' + str(testing_fraction), fontsize=16)
-    plt.subplots_adjust(top=0.90, bottom=0.05, hspace=0.5, wspace=0.1)
+    # fig, ax = plt.subplots(nrows=len(pc_list), ncols=len(intra_cohort_infection_list), sharey=True)
+    # fig.suptitle('Fraction of School Tested Per Day: ' + str(testing_fraction), fontsize=16)
+    # plt.subplots_adjust(top=0.90, bottom=0.05, hspace=0.5, wspace=0.1)
     ax_i = 0
     for p_c in pc_list:
         print("     p_c value = ",p_c)
@@ -212,29 +250,42 @@ for testing_fraction in testing_fraction_list:
                 to_plot2 = []
                 to_plot3 = []
                 to_plot4 = []
+                plot_days=[]
                 for i in range(school_sim):
                     school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers,capacity_of_bus=capacity_of_bus,num_of_cohorts_per_bus=num_of_cohorts_per_bus,bus_interaction_rate=bus_interaction_rate)
                     #print("School Size = ", school.network.number_of_nodes())
                     #plt.subplot(121)
                     #nx.draw(school.network, with_labels=True, font_weight='bold')
                     #plt.show()
-                    avg1, within_school_avg1, avg2,outbreak1,outbreak2 = SIR_on_weighted_Graph(school.network,school,number_of_tests=int(testing_fraction*school.network.number_of_nodes()), fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,removal_rate= removal_rate,
+                    avg1, within_school_avg1, avg2, outbreak30,outbreak60,outbreak90,outbreak120,outbreak150 = SIR_on_weighted_Graph(school.network,school,number_of_tests=int(testing_fraction*school.network.number_of_nodes()), fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,removal_rate= removal_rate,
                                                                                            transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=num_sim)
 
+                    plot_days=[outbreak30,outbreak60,outbreak90,outbreak120,outbreak150]
+                    days=[30,60,90,120,150]
+                    if testing_fraction<0.15:
+                        plt.plot(days, plot_days, label="10% Testing", alpha=1, color="r")
+                    else:
+                        plt.plot(days, plot_days, label="20% Testing", alpha=1, color="b")
 
-                    to_plot1.append(np.mean(avg1)/school.network.number_of_nodes())
-                    to_plot2.append(np.mean(avg2)/ school.network.number_of_nodes())
-                    to_plot3.append(outbreak1)
-                    to_plot4.append(outbreak2)
-                    navg1 = [x/school.network.number_of_nodes() for x in avg1]
-                    within_school_navg1 = [x/school.network.number_of_nodes() for x in within_school_avg1]
-                    data_violin_plot.append(sorted(within_school_navg1))
-                    navg2 = [x/school.network.number_of_nodes() for x in avg2]
+                    # to_plot1.append(np.mean(avg1)/school.network.number_of_nodes())
+                    # to_plot2.append(np.mean(avg2)/ school.network.number_of_nodes())
+                    # # to_plot3.append(outbreak1)
+                    # # to_plot4.append(outbreak2)
+                    # navg1 = [x/school.network.number_of_nodes() for x in avg1]
+                    # within_school_navg1 = [x/school.network.number_of_nodes() for x in within_school_avg1]
+                    # data_violin_plot.append(sorted(within_school_navg1))
+                    # # navg2 = [x/school.network.number_of_nodes() for x in avg2]
+                    #
+                    # print("Prob of outbreak in 30 days: ", outbreak30)
+                    # print("Prob of outbreak in 60 days: ", outbreak60)
+                    # print("Prob of outbreak in 90 days: ", outbreak90)
+                    # print("Prob of outbreak in 120 days: ", outbreak120)
+                    # print("Prob of outbreak in 150 days: ", outbreak150)
 
-                    print("                             Total Infected Full Random = ", avg1)
-                    print("                             Total Fraction Infected Full Random = ", navg1)
-                    print("                             Total Infected Within School Full Random = ", within_school_avg1)
-                    print("                             Total Fraction Infected Within School Full Random = ", within_school_navg1)
+                    # print("                             Total Infected Full Random = ", avg1)
+                    # print("                             Total Fraction Infected Full Random = ", navg1)
+                    # print("                             Total Infected Within School Full Random = ", within_school_avg1)
+                    # print("                             Total Fraction Infected Within School Full Random = ", within_school_navg1)
                     # print("Total Fraction Infected Random Within Cohort = ", navg2)
                     # print("Total Fraction Infected Random Within Cohort = ", navg2)
                     # print("Fraction Outbreak Full Random = ", outbreak1)
@@ -243,26 +294,26 @@ for testing_fraction in testing_fraction_list:
 
 
 
-                final_num_infected_with_cohort_isolation_full_random.append(np.mean(to_plot1))
-                final_num_infected_with_cohort_isolation_random_cohort.append(np.mean(to_plot2))
-                final_num_outbreak_with_cohort_isolation_full_random.append(np.mean(to_plot3))
-                final_num_outbreak_with_cohort_isolation_random_cohort.append(np.mean(to_plot4))
+                # final_num_infected_with_cohort_isolation_full_random.append(np.mean(to_plot1))
+                # final_num_infected_with_cohort_isolation_random_cohort.append(np.mean(to_plot2))
+                # final_num_outbreak_with_cohort_isolation_full_random.append(np.mean(to_plot3))
+                # final_num_outbreak_with_cohort_isolation_random_cohort.append(np.mean(to_plot4))
 
             #plt.figure(1)
-            data_to_dump.append([("p_c",p_c),("ICI",intra_cohort_infection_rate),data_violin_plot])
-            ax[ax_i,ax_j].set_title('PC Value: ' + str(p_c) + ', ICI Rate: ' + str(np.round(intra_cohort_infection_rate, 3)), color='blue')
-            ax[ax_i,ax_j].set_ylabel('Fraction Infected Within 14 days')
-            ax[ax_i,ax_j].violinplot(data_violin_plot)
-            #labels = ['Community Infection:', 'Community Infection:', 'Fraction Infected From \n Community Per Day:']
-            #set_axis_style(ax, labels, intra_cohort_infection_rate)
-            ax[ax_i,ax_j].set_xlabel('Community Infections')
-            ax_j=ax_j+1
-
-        ax_i = ax_i+1
-    # define a list of places
-    with open('output_violin'+str(testing_fraction)+'.data', 'wb') as filehandle:
-        # store the data as binary data stream
-        pickle.dump(data_to_dump, filehandle)
+    #         data_to_dump.append([("p_c",p_c),("ICI",intra_cohort_infection_rate),data_violin_plot])
+    #         ax[ax_i,ax_j].set_title('PC Value: ' + str(np.round(p_c, 3)) + ', ICI Rate: ' + str(np.round(intra_cohort_infection_rate, 3)), color='blue')
+    #         ax[ax_i,ax_j].set_ylabel('Fraction Infected Within 14 days')
+    #         ax[ax_i,ax_j].violinplot(data_violin_plot)
+    #         #labels = ['Community Infection:', 'Community Infection:', 'Fraction Infected From \n Community Per Day:']
+    #         #set_axis_style(ax, labels, intra_cohort_infection_rate)
+    #         ax[ax_i,ax_j].set_xlabel('Community Infections')
+    #         ax_j=ax_j+1
+    #
+    #     ax_i = ax_i+1
+    # # define a list of places
+    # with open('output_violin'+str(testing_fraction)+'.data', 'wb') as filehandle:
+    #     # store the data as binary data stream
+    #     pickle.dump(data_to_dump, filehandle)
 
 
 

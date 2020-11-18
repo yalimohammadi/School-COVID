@@ -605,6 +605,9 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     transmision_from_community = 0
     while Q:  # all the work is done in this while loop.
         cur_time = Q.current_time()
+        # percentage_infected=(I[-1]+ R[-1])/G.order()
+        # if percentage_infected>0.05:
+        #     break
         #COMMUNITY SPREAD CODE
 
         if community_spread_time < cur_time and community_spread_time <= cur_test_time:
