@@ -103,13 +103,13 @@ infection_rate_between_teachers=low_infection_rate*0.05 #we will fix this for No
 
 #p_c will take three different values low, mid, high
 pc_list = [2/total_students, 5/total_students, 10/total_students]
-cg_scale = 1   # 1/10 #5 # [5,10]
-#intra_cohort_infection_rate
+cg_scale = 1
+
+
 intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
-#Fraction of Testing
-# testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
+
 testing_fraction_list = [0.,.1,.2,1.]
-# testing_fraction_list=[0]
+
 
 
 #per day what fraction of students are infected from the community.
