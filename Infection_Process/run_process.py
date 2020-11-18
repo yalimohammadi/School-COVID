@@ -108,12 +108,12 @@ cg_scale = 1   # 1/10 #5 # [5,10]
 intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
 #Fraction of Testing
 # testing_fraction_list = [0, 0.05, 0.1, 0.25, 0.5, 1]
-testing_fraction_list = [0.,.1,.2,.5,1.]
+testing_fraction_list = [0.,.1,.2,1.]
 # testing_fraction_list=[0]
 
 
 #per day what fraction of students are infected from the community.
-fraction_community_list = [0.0001, 0.0002, 0.0004, 0.001] #4.7/(1000.*7.)
+fraction_community_list = [0.0001, 0.0004, 0.001] #4.7/(1000.*7.)
 # fraction_community_list =[ 0]
 import pickle
 
