@@ -5,9 +5,6 @@ import numpy as np
 import EoN
 from collections import defaultdict
 from scipy.stats import weibull_min
-from Testing_Strategies.Simple_Random import calculating_test_weights
-from Testing_Strategies.Simple_Random import random_from_cohorts
-
 
 
 from collections import Counter
@@ -33,23 +30,17 @@ class myQueue(object):
     r'''
     This class is used to store and act on a priority queue of events for
     event-driven simulations.  It is based on heapq.
-
     Each queue is given a tmax (default is infinity) so that any event at later
     time is ignored.
-
     This is a priority queue of 4-tuples of the form
                    ``(t, counter, function, function_arguments)``
-
     The ``'counter'`` is present just to break ties, which generally only occur when
     multiple events are put in place for the initial condition, but could also
     occur in cases where events tend to happen at discrete times.
-
     note that the function is understood to have its first argument be t, and
     the tuple ``function_arguments`` does not include this first t.
-
     So function is called as
         ``function(t, *function_arguments)``
-
     Previously I used a class of events, but sorting using the __lt__ function
     I wrote was significantly slower than simply using tuples.
     '''
@@ -179,98 +170,66 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
-
     From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
-
-
-
-
     :Arguments:
-
     **G** networkx Graph
         The underlying network
-
     **tau** number
         transmission rate per edge
-
     **gamma** number
         recovery rate per node
-
     **initial_infecteds** node or iterable of nodes
         if a single node, then this node is initially infected
-
         if an iterable, then whole set is initially infected
-
         if None, then choose randomly based on rho.
-
         If rho is also None, a random single node is chosen.
-
         If both initial_infecteds and rho are assigned, then there
         is an error.
-
     **initial_recovereds** iterable of nodes (default None)
         this whole collection is made recovered.
         Currently there is no test for consistency with initial_infecteds.
         Understood that everyone who isn't infected or recovered initially
         is initially susceptible.
-
     **rho** number
         initial fraction infected. number is int(round(G.order()*rho))
-
     **tmin** number (default 0)
         starting time
-
     **tmax** number  (default Infinity)
         maximum time after which simulation will stop.
         the default of running to infinity is okay for SIR,
         but not for SIS.
-
     **transmission_weight**    string  (default None)
         the label for a weight given to the edges.
         transmission rate is
         G.adj[i][j][transmission_weight]*tau
-
     **recovery_weight**   string (default None))
         a label for a weight given to the nodes to scale their
         recovery rates
         gamma_i = G.nodes[i][recovery_weight]*gamma
-
     **return_full_data**   boolean (default False)
         Tells whether a Simulation_Investigation object should be returned.
-
     **sim_kwargs** keyword arguments
         Any keyword arguments to be sent to the Simulation_Investigation object
         Only relevant if ``return_full_data=True``
-
-
     :Returns:
-
     **times, S,E, I, T, R** numpy arrays
-
     Or if ``return_full_data is True``
-
     **full_data**  Simulation_Investigation object
             from this we can extract the status history of all nodes.
             We can also plot the network at given times
             and create animations using class methods.
-
     :SAMPLE USE:
-
     ::
-
-
         import networkx as nx
         import EoN
         import matplotlib.pyplot as plt
-
         G = nx.configuration_model([1,5,10]*100000)
         initial_size = 10000
         gamma = 1.
         tau = 0.3
         t, S,E, I, T, R = EoN.fast_SIR(G, tau, gamma,
                                     initial_infecteds = range(initial_size))
-
         plt.plot(t, I)
     '''
     # tested in test_SIR_dynamics
@@ -328,38 +287,9 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   return_full_data=return_full_data,
                                   sim_kwargs=sim_kwargs)
 
-def community_infection(Q,G,status,times,S,I,E,P,R,Isolated,transmision_from_community,community_spread_time,fraction_of_infections_from_community_per_day,at_school, rec_time,
-                                                                               pred_inf_time, transmissions,
-                                                                               trans_and_rec_time_fxn,
-                                                                               trans_and_rec_time_args):
 
-    indices = (np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
-    community_infections = np.where(indices == 1)[0]
 
-    for u in community_infections:
 
-        if status[u] == 'S':
-            transmision_from_community += 1
-            times.append(community_spread_time)
-            S.append(S[-1] - 1)  # no change to number susceptible
-            I.append(I[-1])  # one less infected
-            E.append(E[-1] + 1)  #
-            P.append(P[-1])  # no change to number infected tested
-            R.append(R[-1])  # one more recovered
-            Isolated.append(Isolated[-1])
-            # print(S)
-            status[u] = 'E'
-            inf_time = get_infection_time()  # 5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
-            # pred_inf_time[u] = tmin + inf_time
-            Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I, P, R, Isolated, Q,
-                                                                               status, at_school, rec_time,
-                                                                               pred_inf_time, transmissions,
-                                                                               trans_and_rec_time_fxn,
-                                                                               trans_and_rec_time_args
-                                                                               )
-                  )
-
-    community_spread_time = community_spread_time + 1
 
 def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        rec_time_fxn=None,
@@ -377,169 +307,114 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
     transmission.
-
     Please cite the book if using this algorithm.
-
     This is useful if the transmission rule is non-Markovian in time, or
     for more elaborate models.
-
     Allows the user to define functions (details below) to determine
     the rules of transmission times and recovery times.  There are two ways to do
     this.  The user can define a function that calculates the recovery time
     and another function that calculates the transmission time.  If recovery is after
     transmission, then transmission occurs.  We do this if the time to transmission
     is independent of the time to recovery.
-
     Alternately, the user may want to model a situation where time to transmission
     and time to recovery are not independent.  Then the user can define a single
     function (details below) that would determine both recovery and transmission times.
-
-
     :Arguments:
-
     **G** Networkx Graph
-
     **trans_time_fxn** a user-defined function
         returns the delay until transmission for an edge.  May depend
         on various arguments and need not be Markovian.
-
         Returns float
-
         Will be called using the form
-
         ``trans_delay = trans_time_fxn(source_node, target_node, *trans_time_args)``
             Here trans_time_args is a tuple of the additional
             arguments the functions needs.
-
         the source_node is the infected node
         the target_node is the node that may receive transmission
         rec_delay is the duration of source_node's infection, calculated
         by rec_time_fxn.
-
     **rec_time_fxn** a user-defined function
         returns the delay until recovery for a node.  May depend on various
         arguments and need not be Markovian.
-
         Returns float.
-
         Called using the form
-
         ``rec_delay = rec_time_fxn(node, *rec_time_args)``
             Here rec_time_args is a uple of additional arguments
             the function needs.
-
     **trans_and_rec_time_fxn** a user-defined function
         returns both a dict giving delay until transmissions for all edges
         from source to susceptible neighbors and a float giving delay until
         recovery of the source.
-
         Can only be used **INSTEAD OF** ``trans_time_fxn`` AND ``rec_time_fxn``.
-
         Gives an **ERROR** if these are also defined
-
         Called using the form
         ``trans_delay_dict, rec_delay = trans_and_rec_time_fxn(
                                            node, susceptible_neighbors,
                                            *trans_and_rec_time_args)``
         here trans_delay_dict is a dict whose keys are those neighbors
         who receive a transmission and rec_delay is a float.
-
     **trans_time_args** tuple
         see trans_time_fxn
-
     **rec_time_args** tuple
         see rec_time_fxn
-
     **trans_and_rec_time_args** tuple
         see trans_and_rec_time_fxn
-
     **initial_infecteds** node or iterable of nodes
         if a single node, then this node is initially infected
-
         if an iterable, then whole set is initially infected
-
         if None, then choose randomly based on rho.  If rho is also
         None, a random single node is chosen.
-
         If both initial_infecteds and rho are assigned, then there
         is an error.
-
     **initial_recovereds** iterable of nodes (default None)
         this whole collection is made recovered.
-
         Currently there is no test for consistency with initial_infecteds.
-
         Understood that everyone who isn't infected or recovered initially
         is initially susceptible.
-
     **rho** number
         initial fraction infected. number is int(round(G.order()*rho))
-
     **tmin** number (default 0)
         starting time
-
     **tmax** number (default infinity)
         final time
-
     **return_full_data** boolean (default False)
         Tells whether a Simulation_Investigation object should be returned.
-
     **sim_kwargs** keyword arguments
         Any keyword arguments to be sent to the Simulation_Investigation object
         Only relevant if ``return_full_data=True``
-
-
     :Returns:
-
     **times, S,E, I, P, R** numpy arrays
-
     Or if ``return_full_data is True``
-
     **full_data**  Simulation_Investigation object
         from this we can extract the status history of all nodes
         We can also plot the network at given times
         and even create animations using class methods.
-
-
     :SAMPLE USE:
-
     ::
-
-
         import EoN
         import networkx as nx
         import matplotlib.pyplot as plt
         import random
-
         N=1000000
         G = nx.fast_gnp_random_graph(N, 5/(N-1.))
-
-
-
         #set up the code to handle constant transmission rate
         #with fixed recovery time.
         def trans_time_fxn(source, target, rate):
             return random.expovariate(rate)
-
         def rec_time_fxn(node,D):
             return D
-
         D = 5
         tau = 0.3
         initial_inf_count = 100
-
         t, S,E, I, P, R = EoN.fast_nonMarkov_SIR(G,
                                 trans_time_fxn=trans_time_fxn,
                                 rec_time_fxn=rec_time_fxn,
                                 trans_time_args=(tau,),
                                 rec_time_args=(D,),
                                 initial_infecteds = range(initial_inf_count))
-
         # note the comma after ``tau`` and ``D``.  This is needed for python
         # to recognize these are tuples
-
         # initial condition has first 100 nodes in G infected.
-
     '''
     if rho and initial_infecteds:
         raise EoN.EoNError("cannot define both initial_infecteds and rho")
@@ -635,39 +510,55 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     community_spread_time =tmin+2
 
     transmision_from_community = 0
-    cur_time=0
-    while cur_time<tmax:  # all the work is done in this while loop.
+    while Q or community_spread_time < tmax or cur_test_time< tmax:  # all the work is done in this while loop.
         if Q:
             cur_time = Q.current_time()
         else:
-            cur_time+=1
-            community_infection(Q, G, status, times, S, I, E, P, R, Isolated, transmision_from_community,
-                                community_spread_time, fraction_of_infections_from_community_per_day, at_school,
-                                rec_time,
-                                pred_inf_time, transmissions,
-                                trans_and_rec_time_fxn,
-                                trans_and_rec_time_args)
-            continue
-
+            cur_time = tmax
         # percentage_infected=(I[-1]+ R[-1])/G.order()
         # if percentage_infected>0.05:
         #     break
         #COMMUNITY SPREAD CODE
 
         if community_spread_time < cur_time and community_spread_time <= cur_test_time:
-            community_infection(Q, G, status, times, S, I, E, P, R, Isolated, transmision_from_community,
-                                community_spread_time, fraction_of_infections_from_community_per_day, at_school,
-                                rec_time,
-                                pred_inf_time, transmissions,
-                                trans_and_rec_time_fxn,
-                                trans_and_rec_time_args)
 
             # print("")
             # community_infections = random.sample(G.nodes(), int(round(G.order() * fraction_of_infections_from_community_per_day)))
             # if the fraction of outside is less than 1/size of school, this will be zero
             # change it to binomial maybr?
+            indices=(np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
+            community_infections= np.where(indices==1)[0]
 
+            for u in community_infections:
+
+                if status[u]=='S':
+                    transmision_from_community+=1
+                    times.append(community_spread_time)
+                    S.append(S[-1] - 1)  # no change to number susceptible
+                    I.append(I[-1])  # one less infected
+                    E.append(E[-1] + 1)  #
+                    P.append(P[-1])  # no change to number infected tested
+                    R.append(R[-1])  # one more recovered
+                    Isolated.append(Isolated[-1])
+                    # print(S)
+                    status[u] = 'E'
+                    inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
+                    # pred_inf_time[u] = tmin + inf_time
+                    Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I, P, R, Isolated, Q,
+                                                                  status, at_school, rec_time,
+                                                                  pred_inf_time, transmissions,
+                                                                  trans_and_rec_time_fxn,
+                                                                  trans_and_rec_time_args
+                                                                  )
+                      )
+
+            community_spread_time=community_spread_time+1
     # COMMUNITY SPREAD CODE ENDS HERE
+
+        if Q:
+            cur_time = Q.current_time()
+        else:
+            cur_time = tmax
 
         if cur_test_time < cur_time and cur_test_time < community_spread_time:
             if weighted_test:
@@ -802,6 +693,9 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
     Isolated.append(Isolated[-1])
     return positive_ids
 
+from Testing_Strategies.Simple_Random import calculating_test_weights
+from Testing_Strategies.Simple_Random import random_from_cohorts
+
 
 
 def testing_strategy_with_weights(time, times, S, E, I, P, R, Isolated, status, tested, school, test_cap, curr_weight, next_weight):
@@ -874,9 +768,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
     r'''
     From figure A.4 of Kiss, Miller, & Simon.  Please cite the book if
     using this algorithm.
-
     :Arguments:
-
     time : number
         time of transmission
 **G**  networkx Graph
@@ -904,13 +796,9 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
         versions of this function and then calls fast_nonMarkov_SIR.
     trans_and_rec_time_args : tuple (default empty)
         see trans_and_rec_time_fxn
-
     :Returns:
-
     nothing returned
-
     :MODIFIES:
-
     status : updates status of newly infected node
     rec_time : adds recovery time for node
     times : appends time of event
@@ -919,7 +807,6 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
     R : appends new R (same as last)
     Q : adds recovery and transmission events for newly infected node.
     pred_inf_time : updated for nodes that will receive transmission
-
     '''
 
     if status[target] == 'E': #and status[source] == 'I':  # nothing happens if already infected/tested.
@@ -964,9 +851,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated, Q
                       trans_and_rec_time_args=()):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
-
     :Arguments:
-
         event : event
             has details on node and time
         times : list
@@ -975,12 +860,9 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated, Q
             lists of numbers of nodes of each status at each time
         status : dict
             dictionary giving status of each node
-
-
     :Returns:
         :
         Nothing
-
     MODIFIES
     ----------
     status : updates status of newly recovered node
@@ -1012,9 +894,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated, Q
 def _process_rec_SIR_(time, node, times, S, E, I, P, R, Isolated, status):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
-
     :Arguments:
-
         event : event
             has details on node and time
         times : list
@@ -1023,12 +903,9 @@ def _process_rec_SIR_(time, node, times, S, E, I, P, R, Isolated, status):
             lists of numbers of nodes of each status at each time
         status : dict
             dictionary giving status of each node
-
-
     :Returns:
         :
         Nothing
-
     MODIFIES
     ----------
     status : updates status of newly recovered node
@@ -1047,11 +924,3 @@ def _process_rec_SIR_(time, node, times, S, E, I, P, R, Isolated, status):
     R.append(R[-1] + 1)  # one more recovered
     Isolated.append(Isolated[-1])
     status[node] = 'R'
-
-
-
-
-
-
-
-

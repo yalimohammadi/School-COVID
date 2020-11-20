@@ -20,10 +20,20 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
     num_outbreak_FR90 = 0.0
     num_outbreak_FR120 = 0.0
     num_outbreak_FR150 = 0.0
+    total_infected30_list = []
+    total_infected60_list = []
+    total_infected90_list = []
+    total_infected120_list = []
+    total_infected150_list = []
 
+    # total_active_infected30_list = []
+    # total_active_infected60_list = []
+    # total_active_infected90_list = []
+    # total_active_infected120_list = []
+    # total_active_infected150_list = []
 
     for i in range(num_sim):
-        t,S,E,I,T,R,Isolated,status,total_infections_from_community=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
+        t,S,E,I,T,R,Isolated, status,total_infections_from_community=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
                                rho=initial_fraction_infected, all_test_times = np.linspace(0,tmax,tmax+1), fraction_of_infections_from_community_per_day=fraction_infected_at_each_time_step_from_community, test_args=(number_of_tests,),test_func=Simple_Random.fully_random_test,
                                                  weighted_test=False,school=school,isolate=True,tmax=tmax)
         final_infected_FR.append(R[-1]+I[-1]) # Since the process has not ended, we need to add I[-1]
@@ -33,6 +43,7 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
         total_infected90=0
         total_infected120=0
         total_infected150=0
+
         for k in range(len(t)):
             if t[k]<=30:
                 total_infected30=max(I[k],total_infected30)
@@ -49,6 +60,12 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
             if t[k]<=150:
                 total_infected150=max(I[k],total_infected150)
 
+        total_infected30_list.append(total_infected30)
+        total_infected60_list.append(total_infected60)
+        total_infected90_list.append(total_infected90)
+        total_infected120_list.append(total_infected120)
+        total_infected150_list.append(total_infected150)
+
         if total_infected30>outbreak:
             num_outbreak_FR30+=1
 
@@ -64,7 +81,7 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
         if total_infected150>outbreak:
             num_outbreak_FR150+=1
 
-    return final_infected_FR, within_school_final_infected_FR, final_infected_RWC,num_outbreak_FR30/num_sim,num_outbreak_FR60/num_sim,num_outbreak_FR90/num_sim,num_outbreak_FR120/num_sim,num_outbreak_FR150/num_sim#num_outbreak_RWC/num_sim #
+    return num_outbreak_FR30/num_sim,num_outbreak_FR60/num_sim,num_outbreak_FR90/num_sim,num_outbreak_FR120/num_sim,num_outbreak_FR150/num_sim, total_infected30_list, total_infected60_list, total_infected90_list, total_infected120_list, total_infected150_list #num_outbreak_RWC/num_sim #
 
 
 
@@ -144,12 +161,12 @@ cg_scale = 1
 
 intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
 
-testing_fraction_list = [0, 0.1, 0.2, 1]
+testing_fraction_list = [0, 0.1, 0.2, 1] #0, 0.1,
 
 
 
 #per day what fraction of students are infected from the community.
-fraction_community_list = [0.0001, 0.0004, 0.001] #4.7/(1000.*7.)
+fraction_community_list = [0.0001, 0.001, 0.002, 0.003, 0.004]#
 # fraction_community_list =[ 0]
 import pickle
 
@@ -163,7 +180,7 @@ outbreak90 = "90 days"
 outbreak120 = "120 days"
 outbreak150 = "150 days"
 data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], outbreak30: [], outbreak60: [], outbreak90: [], outbreak120: [], outbreak150: []}
-
+full_data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], outbreak30: [], outbreak60: [], outbreak90: [], outbreak120: [], outbreak150: []}
 for testing_fraction in testing_fraction_list:
     iter=-1
     print("Testing fraction = ",testing_fraction)
@@ -178,7 +195,7 @@ for testing_fraction in testing_fraction_list:
                 for i in range(school_sim):
                     school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers,capacity_of_bus=capacity_of_bus,num_of_cohorts_per_bus=num_of_cohorts_per_bus,bus_interaction_rate=bus_interaction_rate)
 
-                    avg1, within_school_avg1, avg2, voutbreak30,voutbreak60,voutbreak90,voutbreak120,voutbreak150 =\
+                    voutbreak30,voutbreak60,voutbreak90,voutbreak120,voutbreak150, vtotal_infected30_list, vtotal_infected60_list, vtotal_infected90_list, vtotal_infected120_list, vtotal_infected150_list=\
                         SIR_on_weighted_Graph(school.network,school,number_of_tests=int(testing_fraction*school.network.number_of_nodes()), fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,removal_rate= removal_rate,
                                                                                            transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=num_sim)
 
@@ -193,11 +210,28 @@ for testing_fraction in testing_fraction_list:
                     data_infected[outbreak120] += [voutbreak120]
                     data_infected[outbreak150] += [voutbreak150]
 
+                    full_data_infected[test_str]+=[testing_fraction]*num_sim
+                    full_data_infected[p_str]+=[p_c]*num_sim
+                    full_data_infected[ICI_str]+=[intra_cohort_infection_rate]*num_sim
+                    full_data_infected[inboud_str]+=[fraction_infected_at_each_time_step_from_community]*num_sim
+                    full_data_infected[outbreak30] += vtotal_infected30_list
+                    full_data_infected[outbreak60] += vtotal_infected60_list
+                    full_data_infected[outbreak90] += vtotal_infected90_list
+                    full_data_infected[outbreak120] += vtotal_infected120_list
+                    full_data_infected[outbreak150] += vtotal_infected150_list
+
     data_to_dump = pd.DataFrame(data_infected)
+    full_data_to_dump = pd.DataFrame(full_data_infected)
     print(data_to_dump)
+    print(full_data_to_dump)
     with open('nnnnewoutput' + str(int(testing_fraction*100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
+
+    with open('fullnnnnewoutput' + str(int(testing_fraction*100)) + 't.data', 'wb') as filehandle:
+        # store the data as binary data stream
+        pickle.dump(full_data_to_dump, filehandle)
+
 
 
 # data_to_dump=pd.DataFrame(data_infected)
