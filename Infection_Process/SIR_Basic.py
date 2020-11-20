@@ -5,6 +5,9 @@ import numpy as np
 import EoN
 from collections import defaultdict
 from scipy.stats import weibull_min
+from Testing_Strategies.Simple_Random import calculating_test_weights
+from Testing_Strategies.Simple_Random import random_from_cohorts
+
 
 
 from collections import Counter
@@ -325,9 +328,38 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   return_full_data=return_full_data,
                                   sim_kwargs=sim_kwargs)
 
+def community_infection(Q,G,status,times,S,I,E,P,R,Isolated,transmision_from_community,community_spread_time,fraction_of_infections_from_community_per_day,at_school, rec_time,
+                                                                               pred_inf_time, transmissions,
+                                                                               trans_and_rec_time_fxn,
+                                                                               trans_and_rec_time_args):
 
+    indices = (np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
+    community_infections = np.where(indices == 1)[0]
 
+    for u in community_infections:
 
+        if status[u] == 'S':
+            transmision_from_community += 1
+            times.append(community_spread_time)
+            S.append(S[-1] - 1)  # no change to number susceptible
+            I.append(I[-1])  # one less infected
+            E.append(E[-1] + 1)  #
+            P.append(P[-1])  # no change to number infected tested
+            R.append(R[-1])  # one more recovered
+            Isolated.append(Isolated[-1])
+            # print(S)
+            status[u] = 'E'
+            inf_time = get_infection_time()  # 5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
+            # pred_inf_time[u] = tmin + inf_time
+            Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I, P, R, Isolated, Q,
+                                                                               status, at_school, rec_time,
+                                                                               pred_inf_time, transmissions,
+                                                                               trans_and_rec_time_fxn,
+                                                                               trans_and_rec_time_args
+                                                                               )
+                  )
+
+    community_spread_time = community_spread_time + 1
 
 def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        rec_time_fxn=None,
@@ -603,46 +635,38 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     community_spread_time =tmin+2
 
     transmision_from_community = 0
-    while Q:  # all the work is done in this while loop.
-        cur_time = Q.current_time()
+    cur_time=0
+    while cur_time<tmax:  # all the work is done in this while loop.
+        if Q:
+            cur_time = Q.current_time()
+        else:
+            cur_time+=1
+            community_infection(Q, G, status, times, S, I, E, P, R, Isolated, transmision_from_community,
+                                community_spread_time, fraction_of_infections_from_community_per_day, at_school,
+                                rec_time,
+                                pred_inf_time, transmissions,
+                                trans_and_rec_time_fxn,
+                                trans_and_rec_time_args)
+            continue
+
         # percentage_infected=(I[-1]+ R[-1])/G.order()
         # if percentage_infected>0.05:
         #     break
         #COMMUNITY SPREAD CODE
 
         if community_spread_time < cur_time and community_spread_time <= cur_test_time:
+            community_infection(Q, G, status, times, S, I, E, P, R, Isolated, transmision_from_community,
+                                community_spread_time, fraction_of_infections_from_community_per_day, at_school,
+                                rec_time,
+                                pred_inf_time, transmissions,
+                                trans_and_rec_time_fxn,
+                                trans_and_rec_time_args)
 
             # print("")
             # community_infections = random.sample(G.nodes(), int(round(G.order() * fraction_of_infections_from_community_per_day)))
             # if the fraction of outside is less than 1/size of school, this will be zero
             # change it to binomial maybr?
-            indices=(np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
-            community_infections= np.where(indices==1)[0]
 
-            for u in community_infections:
-
-                if status[u]=='S':
-                    transmision_from_community+=1
-                    times.append(community_spread_time)
-                    S.append(S[-1] - 1)  # no change to number susceptible
-                    I.append(I[-1])  # one less infected
-                    E.append(E[-1] + 1)  #
-                    P.append(P[-1])  # no change to number infected tested
-                    R.append(R[-1])  # one more recovered
-                    Isolated.append(Isolated[-1])
-                    # print(S)
-                    status[u] = 'E'
-                    inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
-                    # pred_inf_time[u] = tmin + inf_time
-                    Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I, P, R, Isolated, Q,
-                                                                  status, at_school, rec_time,
-                                                                  pred_inf_time, transmissions,
-                                                                  trans_and_rec_time_fxn,
-                                                                  trans_and_rec_time_args
-                                                                  )
-                      )
-
-            community_spread_time=community_spread_time+1
     # COMMUNITY SPREAD CODE ENDS HERE
 
         if cur_test_time < cur_time and cur_test_time < community_spread_time:
@@ -777,9 +801,6 @@ def testing_strategy(time, times, S, E, I, P, R, Isolated, status, tested, test_
     #debug([positive_ids,status,tested],"in testing strategy, new positives (first line). status (second line) , all already tested positive students (third line)")
     Isolated.append(Isolated[-1])
     return positive_ids
-
-from Testing_Strategies.Simple_Random import calculating_test_weights
-from Testing_Strategies.Simple_Random import random_from_cohorts
 
 
 

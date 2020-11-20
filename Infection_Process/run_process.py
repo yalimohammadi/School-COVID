@@ -8,7 +8,12 @@ from Testing_Strategies import Simple_Random
 
 
 
-def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=60) -> object:
+
+def find_time_outbreak(t,RI,outbreak):
+    for i in range(len(t)):
+        if RI[i]>outbreak:
+            return t[i]
+def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_time_step_from_community=0,removal_rate = 1.,transmission_scale=1.,initial_fraction_infected= 0.01,num_sim=1,tmax=200) -> object:
     final_infected_FR=[]
     within_school_final_infected_FR = []
     # final_infected_RWC=[0]
@@ -16,21 +21,26 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
     #print(outbreak)
     num_outbreak_FR=0
     # num_outbreak_RWC=0
+    tim_outbreaks=[]
     for i in range(num_sim):
         t,S,E,I,T,R,Isolated,status,total_infections_from_community=EoN.fast_SIR(G,gamma=removal_rate, tau=transmission_scale,transmission_weight="weight",
                                rho=initial_fraction_infected, all_test_times = np.linspace(0,tmax,tmax+1), fraction_of_infections_from_community_per_day=fraction_infected_at_each_time_step_from_community, test_args=(number_of_tests,),test_func=Simple_Random.fully_random_test,
                                                  weighted_test=False,school=school,isolate=True,tmax=tmax)
+
+        n=G.order()
+        to=find_time_outbreak(t,(R+I)/n,.05)
+        tim_outbreaks.append(to)
         final_infected_FR.append(R[-1]+I[-1]) # Since the process has not ended, we need to add I[-1]
         within_school_final_infected_FR.append(R[-1] + I[-1] - total_infections_from_community) #-total_infections_from_community-initial_fraction_infected*school.network.number_of_nodes()
         if R[-1]>outbreak:
             num_outbreak_FR+=1
 
-    return final_infected_FR, within_school_final_infected_FR, num_outbreak_FR/num_sim
+    return final_infected_FR, within_school_final_infected_FR, num_outbreak_FR/num_sim,tim_outbreaks
 
 
 
 school_sim=1
-num_sim= 200
+num_sim= 50
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
@@ -120,6 +130,7 @@ for testing_fraction in testing_fraction_list:
     school_str="infected_from_school"
     total_str="total infected"
     inboud_str="inbound"
+    time_str="time_outbreak"
     data_infected={p_str:[],ICI_str:[],school_str:[],total_str:[],inboud_str:[]}
     # print("Testing Fraction = ", testing_fraction)
     # fig, ax = plt.subplots(nrows=len(pc_list), ncols=len(intra_cohort_infection_list), sharey=True)
@@ -143,12 +154,12 @@ for testing_fraction in testing_fraction_list:
                 for i in range(school_sim):
                     school = School("LA1", num_grades,cohort_sizes,num_cohort,num_teachers,p_c,p_g,high_risk_probability,high_infection_rate,low_infection_rate,intra_cohort_infection_rate,teacher_student_infection_rate,student_teacher_infection_rate,infection_rate_between_teachers,capacity_of_bus=capacity_of_bus,num_of_cohorts_per_bus=num_of_cohorts_per_bus,bus_interaction_rate=bus_interaction_rate)
 
-                    final_infected_FR, within_school_final_infected_FR, prob_outbreak =\
+                    final_infected_FR, within_school_final_infected_FR, prob_outbreak,time_outbreaks =\
                         SIR_on_weighted_Graph(school.network,school,number_of_tests=int(testing_fraction*school.network.number_of_nodes()), fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,removal_rate= removal_rate,
                                                                                            transmission_scale=transmission_scale,initial_fraction_infected= initial_fraction_infected,num_sim=num_sim)
 
 
-
+                    data_infected[time_str]+=time_outbreaks
                     data_infected[school_str]+=within_school_final_infected_FR
                     data_infected[total_str]+=final_infected_FR
                     data_infected[p_str]+=[p_c]*num_sim
