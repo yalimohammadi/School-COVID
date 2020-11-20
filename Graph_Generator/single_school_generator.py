@@ -70,6 +70,7 @@ class School:
         teachrs=Cohort(size=num_teachers,grade="teacher",high_risk_probability=0.0, low_infection_rate=infection_rate_between_teachers)
         return teachrs
     def assing_teacher_to_cohort(self,teacher,cohort_ids, teacher_student_infection_rate=.1,student_teacher_infection_rate=.1):
+
         new_edges=[]
         for s in cohort_ids:
             new_edges.append((teacher,s,teacher_student_infection_rate))
@@ -124,6 +125,10 @@ class School:
             for i in range(num_cohorts_per_teacher):
                 new_edge=self.assing_teacher_to_cohort(t,self.cohorts_list[(t*num_cohorts_per_teacher+i)%total_cohorts],
                                                        teacher_student_infection_rate,student_teacher_infection_rate)
+
+                self.cohorts_list[(t*num_cohorts_per_teacher+i)%total_cohorts].append(t) # add teacher to cohort when assigning it. we need it for isolation policyt
+                self.assign_student_to_cohort(t,(t*num_cohorts_per_teacher+i)%total_cohorts)
+
                 teacher_edges+=new_edge
 
         # print("t_edges",teacher_edges)

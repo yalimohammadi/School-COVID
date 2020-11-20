@@ -131,7 +131,7 @@ interaction_list=[1]
 
 
 #Edge weights
-high_infection_rate = 2.2/100.
+high_infection_rate = 2.86/100.
 low_infection_rate= high_infection_rate #Within cohort edge weight
 # scale=1/20
 # intra_cohort_infection_rate = low_infection_rate*scale   #Across cohort edge weights
@@ -224,11 +224,11 @@ for testing_fraction in testing_fraction_list:
     full_data_to_dump = pd.DataFrame(full_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('nnnnewoutput' + str(int(testing_fraction*100)) + 't.data', 'wb') as filehandle:
+    with open('Highoutput' + str(int(testing_fraction*100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('fullnnnnewoutput' + str(int(testing_fraction*100)) + 't.data', 'wb') as filehandle:
+    with open('HighFulloutput' + str(int(testing_fraction*100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
