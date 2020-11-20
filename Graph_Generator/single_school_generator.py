@@ -127,8 +127,7 @@ class School:
                                                        teacher_student_infection_rate,student_teacher_infection_rate)
 
                 self.cohorts_list[(t*num_cohorts_per_teacher+i)%total_cohorts].append(t) # add teacher to cohort when assigning it. we need it for isolation policyt
-                for cohort_id in (t*num_cohorts_per_teacher+i)%total_cohorts:
-                    self.assign_student_to_cohort(t,cohort_id)
+                self.assign_student_to_cohort([t],(t*num_cohorts_per_teacher+i)%total_cohorts)
 
                 teacher_edges+=new_edge
 
