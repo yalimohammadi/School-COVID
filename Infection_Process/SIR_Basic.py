@@ -741,6 +741,7 @@ def find_isolated_cohorts(positives,school,at_school,threshold=1):
             continue
         if node in school.teachers_id:
             positive_teachers+=1
+            positive_per_cohort[school.student_to_cohort[node]]+=1
         else:
             positive_per_cohort[school.student_to_cohort[node]]+=1
 
