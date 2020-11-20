@@ -86,7 +86,7 @@ def SIR_on_weighted_Graph(G,school,number_of_tests=0,fraction_infected_at_each_t
 
 
 school_sim=1
-num_sim= 200
+num_sim= 100
 total_students= 6*12*25 #2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students/num_grades)
@@ -166,7 +166,7 @@ testing_fraction_list = [0, 0.1, 0.2, 1] #0, 0.1,
 
 
 #per day what fraction of students are infected from the community.
-fraction_community_list = [0.0001, 0.001, 0.002, 0.003, 0.004]#
+fraction_community_list = [0.0001, 0.001, 0.002, 0.004]#
 # fraction_community_list =[ 0]
 import pickle
 
@@ -181,6 +181,8 @@ outbreak120 = "120 days"
 outbreak150 = "150 days"
 data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], outbreak30: [], outbreak60: [], outbreak90: [], outbreak120: [], outbreak150: []}
 full_data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], outbreak30: [], outbreak60: [], outbreak90: [], outbreak120: [], outbreak150: []}
+
+diagonal =0
 for testing_fraction in testing_fraction_list:
     iter=-1
     print("Testing fraction = ",testing_fraction)
@@ -188,7 +190,7 @@ for testing_fraction in testing_fraction_list:
         iter+=1
         print("p_c value = ", p_c)
         p_g = p_c * cg_scale
-        for intra_cohort_infection_rate in [intra_cohort_infection_list[iter]]: #cohort_sizes in cohort_size_list: #
+        for intra_cohort_infection_rate in [intra_cohort_infection_list[iter]]: #cohort_sizes in cohort_size_list:
             print("ICI Rate= ", intra_cohort_infection_rate)
             for fraction_infected_at_each_time_step_from_community in fraction_community_list:
                 print("Fraction Infected from the Community = ",fraction_infected_at_each_time_step_from_community)
