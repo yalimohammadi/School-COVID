@@ -226,7 +226,7 @@ positive_tests_str = "positive tests"
 
 data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], hue_str: [], outbreak_str: []}
 full_data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], hue_str: [],
-                      FN_str:[], Total_Infected_str:[], test_str:[]
+                      FN_str:[], Total_Infected_str:[], positive_tests_str:[]
                       }
 
 diagonal = 0
