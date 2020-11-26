@@ -222,7 +222,7 @@ outbreak150 = "150 days"
 
 FN_str = "False Negative Rates"
 Total_Infected_str = "maximum number infected"
-test_str = "positive tests"
+positive_tests_str = "positive tests"
 
 data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], hue_str: [], outbreak_str: []}
 full_data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], hue_str: [],
@@ -272,7 +272,8 @@ for testing_fraction in testing_fraction_list:
                     full_data_infected[hue_str] += [outbreak30]*num_sim +[outbreak60]*num_sim + [outbreak90]*num_sim+ [outbreak120]*num_sim +[outbreak150]*num_sim
                     full_data_infected[FN_str] += FN30_list+ FN60_list+FN90_list+ FN120_list+FN150_list
                     full_data_infected[Total_Infected_str]+= vtotal_infected30_list+ vtotal_infected60_list+ vtotal_infected90_list+ vtotal_infected120_list+ vtotal_infected150_list
-                    full_data_infected[test_str]+= total_positives30_list+total_positives60_list+ total_positives90_list+total_positives120_list+total_positives150_list
+                    full_data_infected[positive_tests_str]+= total_positives30_list+total_positives60_list+ total_positives90_list+total_positives120_list+total_positives150_list
+
     data_to_dump = pd.DataFrame(data_infected)
     full_data_to_dump = pd.DataFrame(full_data_infected)
     print(data_to_dump)
