@@ -161,7 +161,7 @@ cg_scale = 1
 
 intra_cohort_infection_list= [low_infection_rate/10, low_infection_rate/5, low_infection_rate]
 
-testing_fraction_list = [0, 0.1, 0.2, 1] #0, 0.1,
+testing_fraction_list = [1] #0, 0.1, 0.2,
 
 
 

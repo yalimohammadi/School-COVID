@@ -467,7 +467,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
     status[-1]="I" # -1 is dummy source
     for u in initial_infecteds:
-        times.append(tmin+1)
+        times.append(tmin)
         S.append(S[-1] - 1)  # no change to number susceptible
         I.append(I[-1])  # one less infected
         E.append(E[-1] + 1)  #
@@ -491,7 +491,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
 
-    all_test_times=[i+tmin+1 for i in all_test_times] # calibrate with min simulation time
+    all_test_times=[i+tmin for i in all_test_times] # calibrate with min simulation time
     cur_test_time = tmax + 10
     if len(all_test_times) > 0:
         cur_test_time = all_test_times.pop(0)
@@ -834,6 +834,12 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
                   args=(target, times, S, E, I, P, R, Isolated, status))
         for v in trans_delay:
             inf_time = time + trans_delay[v]
+            day_of_week = (time + trans_delay[v])%7
+            #if either sat or sun, shift the infection to monday
+            if day_of_week == 5:
+                inf_time = inf_time+2
+            if day_of_week == 6:
+                inf_time = inf_time+1
             if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
                 Q.add(inf_time, _process_exp_SIR_,
                       args=(G, target, v, times, S, E, I, P, R, Isolated, Q,
