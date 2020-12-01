@@ -514,7 +514,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         if Q:
             cur_time = Q.current_time()
         else:
-            cur_time = tmax
+            cur_time = tmax + 10
         # percentage_infected=(I[-1]+ R[-1])/G.order()
         # if percentage_infected>0.05:
         #     break
@@ -558,7 +558,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         if Q:
             cur_time = Q.current_time()
         else:
-            cur_time = tmax
+            cur_time = tmax + 10
 
         if cur_test_time < cur_time and cur_test_time < community_spread_time:
             if weighted_test:
@@ -578,7 +578,8 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
             else:
                 cur_test_time = tmax + 10
         else:
-            Q.pop_and_run()
+            if Q:
+                Q.pop_and_run()
 
     # print("total transmission from community",transmision_from_community, "in time", times[-1])
 
@@ -833,13 +834,20 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
             Q.add(rec_time[target], _process_rec_SIR_,
                   args=(target, times, S, E, I, P, R, Isolated, status))
         for v in trans_delay:
-            inf_time = time + trans_delay[v]
-            day_of_week = (time + trans_delay[v])%7
-            #if either sat or sun, shift the infection to monday
-            if day_of_week == 5:
-                inf_time = inf_time+2
-            if day_of_week == 6:
-                inf_time = inf_time+1
+            inf_time = time
+            if inf_time % 7 == 5:
+                inf_time = inf_time + 2
+            elif inf_time % 7 == 6:
+                inf_time = inf_time + 1
+            tt_delay = trans_delay[v]
+            tt_weeks = int(tt_delay/5)
+            tt_rem_days = tt_delay % 5
+            inf_time = inf_time + tt_weeks*7 + tt_rem_days
+            if inf_time % 7 == 5:
+                inf_time = inf_time + 2
+            elif inf_time % 7 == 6:
+                inf_time = inf_time + 1
+
             if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
                 Q.add(inf_time, _process_exp_SIR_,
                       args=(G, target, v, times, S, E, I, P, R, Isolated, Q,

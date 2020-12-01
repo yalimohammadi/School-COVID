@@ -42,15 +42,24 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
     # total_active_infected90_list = []
     # total_active_infected120_list = []
     # total_active_infected150_list = []
-
+    all_test_times = []
+    #Testing Monday-Friday
+    for i in range(tmax):
+        day_of_week=i%7
+        if day_of_week not in [5,6]:
+            all_test_times.append(i)
+    #Testing only Monday
+    # for i in range(tmax):
+    #     day_of_week=i%7
+    #     if day_of_week == 0:
+    #         all_test_times.append(i)
     for i in range(num_sim):
+        #convention 0==Monday, 1 ==Tuesday and so on
         t, S, E, I, T, R, Isolated, status, total_infections_from_community = EoN.fast_SIR(G, gamma=removal_rate,
                                                                                            tau=transmission_scale,
                                                                                            transmission_weight="weight",
                                                                                            rho=initial_fraction_infected,
-                                                                                           all_test_times=np.linspace(0,
-                                                                                                                      tmax,
-                                                                                                                      tmax + 1),
+                                                                                           all_test_times=all_test_times,
                                                                                            fraction_of_infections_from_community_per_day=fraction_infected_at_each_time_step_from_community,
                                                                                            test_args=(number_of_tests,),
                                                                                            test_func=Simple_Random.fully_random_test,
@@ -71,37 +80,52 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
         total_positives120 = 0
         total_positives150 = 0
 
-        max_false_negative30 = 0
-        max_false_negative60 = 0
-        max_false_negative90 = 0
-        max_false_negative120 = 0
-        max_false_negative150 = 0
-
+        max_false_negative30 = 0.0
+        max_false_negative60 = 0.0
+        max_false_negative90 = 0.0
+        max_false_negative120 = 0.0
+        max_false_negative150 = 0.0
         for k in range(len(t)):
             if t[k] <= 30:
                 max_infected30 = max(I[k], max_infected30)
                 total_positives30 = T[k]  # it will save the last value of T before 30 days
-                max_false_negative30 = max(E[k] / (I[k] + E[k]), max_false_negative30)
+                if E[k] != 0:
+                    max_false_negative30 = max(E[k] / (I[k] + E[k]), max_false_negative30)
+                else:
+                    max_false_negative30 = max(0, max_false_negative30)
+
 
             if t[k] <= 60:
                 max_infected60 = max(I[k], max_infected60)
                 total_positives60 = T[k]
-                max_false_negative60 = max(E[k] / (I[k] + E[k]), max_false_negative60)
+                if E[k] != 0:
+                    max_false_negative60 = max(E[k] / (I[k] + E[k]), max_false_negative60)
+                else:
+                    max_false_negative60 = max(0, max_false_negative60)
 
             if t[k] <= 90:
                 max_infected90 = max(I[k], max_infected90)
                 total_positives90 = T[k]
-                max_false_negative90 = max(E[k] / (I[k] + E[k]), max_false_negative90)
+                if E[k] != 0:
+                    max_false_negative90 = max(E[k] / (I[k] + E[k]), max_false_negative90)
+                else:
+                    max_false_negative90 = max(0, max_false_negative90)
 
             if t[k] <= 120:
                 max_infected120 = max(I[k], max_infected120)
                 total_positives120 = T[k]
-                max_false_negative120 = max(E[k] / (I[k] + E[k]), max_false_negative120)
+                if E[k] != 0:
+                    max_false_negative120 = max(E[k] / (I[k] + E[k]), max_false_negative120)
+                else:
+                    max_false_negative120 = max(0, max_false_negative120)
 
             if t[k] <= 150:
                 max_infected150 = max(I[k], max_infected150)
                 total_positives150 = T[k]
-                max_false_negative150 = max(E[k] / (I[k] + E[k]), max_false_negative150)
+                if E[k] != 0:
+                    max_false_negative150 = max(E[k] / (I[k] + E[k]), max_false_negative150)
+                else:
+                    max_false_negative150 = max(0, max_false_negative150)
 
         total_infected30_list.append(max_infected30)
         total_infected60_list.append(max_infected60)
