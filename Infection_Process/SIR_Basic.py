@@ -835,17 +835,17 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, P, R, Isolated,
                   args=(target, times, S, E, I, P, R, Isolated, status))
         for v in trans_delay:
             inf_time = time
-            if inf_time % 7 == 5:
+            if int(inf_time % 7) == 5:
                 inf_time = inf_time + 2
-            elif inf_time % 7 == 6:
+            elif int(inf_time % 7) == 6:
                 inf_time = inf_time + 1
             tt_delay = trans_delay[v]
             tt_weeks = int(tt_delay/5)
             tt_rem_days = tt_delay % 5
             inf_time = inf_time + tt_weeks*7 + tt_rem_days
-            if inf_time % 7 == 5:
+            if int(inf_time % 7) == 5:
                 inf_time = inf_time + 2
-            elif inf_time % 7 == 6:
+            elif int(inf_time % 7) == 6:
                 inf_time = inf_time + 1
 
             if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
