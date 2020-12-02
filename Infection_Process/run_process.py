@@ -90,7 +90,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
                 max_infected30 = max(I[k], max_infected30)
                 total_positives30 = T[k]  # it will save the last value of T before 30 days
                 if E[k] != 0:
-                    max_false_negative30 = max(E[k] / (I[k] + E[k]), max_false_negative30)
+                    max_false_negative30 = max(E[k] / (S[k] + E[k]), max_false_negative30)
                 else:
                     max_false_negative30 = max(0, max_false_negative30)
 
@@ -99,7 +99,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
                 max_infected60 = max(I[k], max_infected60)
                 total_positives60 = T[k]
                 if E[k] != 0:
-                    max_false_negative60 = max(E[k] / (I[k] + E[k]), max_false_negative60)
+                    max_false_negative60 = max(E[k] / (S[k] + E[k]), max_false_negative60)
                 else:
                     max_false_negative60 = max(0, max_false_negative60)
 
@@ -107,7 +107,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
                 max_infected90 = max(I[k], max_infected90)
                 total_positives90 = T[k]
                 if E[k] != 0:
-                    max_false_negative90 = max(E[k] / (I[k] + E[k]), max_false_negative90)
+                    max_false_negative90 = max(E[k] / (S[k] + E[k]), max_false_negative90)
                 else:
                     max_false_negative90 = max(0, max_false_negative90)
 
@@ -115,7 +115,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
                 max_infected120 = max(I[k], max_infected120)
                 total_positives120 = T[k]
                 if E[k] != 0:
-                    max_false_negative120 = max(E[k] / (I[k] + E[k]), max_false_negative120)
+                    max_false_negative120 = max(E[k] / (S[k] + E[k]), max_false_negative120)
                 else:
                     max_false_negative120 = max(0, max_false_negative120)
 
@@ -123,7 +123,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
                 max_infected150 = max(I[k], max_infected150)
                 total_positives150 = T[k]
                 if E[k] != 0:
-                    max_false_negative150 = max(E[k] / (I[k] + E[k]), max_false_negative150)
+                    max_false_negative150 = max(E[k] / (S[k] + E[k]), max_false_negative150)
                 else:
                     max_false_negative150 = max(0, max_false_negative150)
 
