@@ -25,6 +25,13 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
     total_infected120_list = []
     total_infected150_list = []
 
+
+    max_infected30_list = []
+    max_infected60_list = []
+    max_infected90_list = []
+    max_infected120_list = []
+    max_infected150_list = []
+
     total_positives30_list = []
     total_positives60_list = []
     total_positives90_list = []
@@ -37,11 +44,6 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
     FN120_list = []
     FN150_list = []
 
-    # total_active_infected30_list = []
-    # total_active_infected60_list = []
-    # total_active_infected90_list = []
-    # total_active_infected120_list = []
-    # total_active_infected150_list = []
     all_test_times = []
     #Testing Monday-Friday
     for i in range(tmax):
@@ -80,6 +82,12 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
         total_positives120 = 0
         total_positives150 = 0
 
+        total_inf30 = 0
+        total_inf60 = 0
+        total_inf90 = 0
+        total_inf120 = 0
+        total_inf150 = 0
+
         max_false_negative30 = 0.0
         max_false_negative60 = 0.0
         max_false_negative90 = 0.0
@@ -89,6 +97,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
             if t[k] <= 30:
                 max_infected30 = max(I[k], max_infected30)
                 total_positives30 = T[k]  # it will save the last value of T before 30 days
+                total_inf30 = R[k]+I[k]
                 if E[k] != 0:
                     max_false_negative30 = max(E[k] / (S[k] + E[k]), max_false_negative30)
                 else:
@@ -98,6 +107,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
             if t[k] <= 60:
                 max_infected60 = max(I[k], max_infected60)
                 total_positives60 = T[k]
+                total_inf60 = R[k]+I[k]
                 if E[k] != 0:
                     max_false_negative60 = max(E[k] / (S[k] + E[k]), max_false_negative60)
                 else:
@@ -106,6 +116,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
             if t[k] <= 90:
                 max_infected90 = max(I[k], max_infected90)
                 total_positives90 = T[k]
+                total_inf90 = R[k]+I[k]
                 if E[k] != 0:
                     max_false_negative90 = max(E[k] / (S[k] + E[k]), max_false_negative90)
                 else:
@@ -114,6 +125,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
             if t[k] <= 120:
                 max_infected120 = max(I[k], max_infected120)
                 total_positives120 = T[k]
+                total_inf120 = R[k]+I[k]
                 if E[k] != 0:
                     max_false_negative120 = max(E[k] / (S[k] + E[k]), max_false_negative120)
                 else:
@@ -122,16 +134,23 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
             if t[k] <= 150:
                 max_infected150 = max(I[k], max_infected150)
                 total_positives150 = T[k]
+                total_inf150 = R[k]+I[k]
                 if E[k] != 0:
                     max_false_negative150 = max(E[k] / (S[k] + E[k]), max_false_negative150)
                 else:
                     max_false_negative150 = max(0, max_false_negative150)
 
-        total_infected30_list.append(max_infected30)
-        total_infected60_list.append(max_infected60)
-        total_infected90_list.append(max_infected90)
-        total_infected120_list.append(max_infected120)
-        total_infected150_list.append(max_infected150)
+        max_infected30_list.append(max_infected30)
+        max_infected60_list.append(max_infected60)
+        max_infected90_list.append(max_infected90)
+        max_infected120_list.append(max_infected120)
+        max_infected150_list.append(max_infected150)
+
+        total_infected30_list.append(total_inf30)
+        total_infected60_list.append(total_inf60)
+        total_infected90_list.append(total_inf90)
+        total_infected120_list.append(total_inf120)
+        total_infected150_list.append(total_inf150)
 
         FN30_list.append(max_false_negative30)
         FN60_list.append(max_false_negative60)
@@ -144,6 +163,8 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
         total_positives90_list.append(total_positives90)
         total_positives120_list.append(total_positives120)
         total_positives150_list.append(total_positives150)
+
+
 
         if max_infected30 > outbreak:
             num_outbreak_FR30 += 1
@@ -161,7 +182,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
             num_outbreak_FR150 += 1
 
     return num_outbreak_FR30 / num_sim, num_outbreak_FR60 / num_sim, num_outbreak_FR90 / num_sim, num_outbreak_FR120 / num_sim, num_outbreak_FR150 / num_sim, total_infected30_list, total_infected60_list, total_infected90_list, total_infected120_list, total_infected150_list, \
-        total_positives30_list,  total_positives60_list,  total_positives90_list,  total_positives120_list,  total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list
+        total_positives30_list,  total_positives60_list,  total_positives90_list,  total_positives120_list,  total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list, max_infected30_list, max_infected60_list, max_infected90_list, max_infected120_list, max_infected150_list
 
 
 school_sim = 1
@@ -273,8 +294,8 @@ for testing_fraction in testing_fraction_list:
                                     capacity_of_bus=capacity_of_bus, num_of_cohorts_per_bus=num_of_cohorts_per_bus,
                                     bus_interaction_rate=bus_interaction_rate)
 
-                    voutbreak30, voutbreak60, voutbreak90, voutbreak120, voutbreak150, vtotal_infected30_list, vtotal_infected60_list, vtotal_infected90_list, vtotal_infected120_list, vtotal_infected150_list ,\
-                    total_positives30_list, total_positives60_list, total_positives90_list, total_positives120_list, total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list= \
+                    voutbreak30, voutbreak60, voutbreak90, voutbreak120, voutbreak150, vmax_infected30_list, vmax_infected60_list, vmax_infected90_list, vmax_infected120_list, vmax_infected150_list ,\
+                    total_positives30_list, total_positives60_list, total_positives90_list, total_positives120_list, total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list,vtotal_infected30_list, vtotal_infected60_list, vtotal_infected90_list, vtotal_infected120_list, vtotal_infected150_list = \
                         SIR_on_weighted_Graph(school.network, school,
                                               number_of_tests=int(testing_fraction * school.network.number_of_nodes()),
                                               fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,
