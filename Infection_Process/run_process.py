@@ -295,7 +295,7 @@ for testing_fraction in testing_fraction_list:
                                     bus_interaction_rate=bus_interaction_rate)
 
                     voutbreak30, voutbreak60, voutbreak90, voutbreak120, voutbreak150,  vtotal_infected60_list, vtotal_infected90_list, vtotal_infected120_list, vtotal_infected150_list,\
-                    total_positives30_list, total_positives60_list, total_positives90_list, total_positives120_list, total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list, vmax_infected30_list, vmax_infected60_list, vmax_infected90_list, vmax_infected120_list, vmax_infected150_listvtotal_infected30_list = \
+                    total_positives30_list, total_positives60_list, total_positives90_list, total_positives120_list, total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list, vmax_infected30_list, vmax_infected60_list, vmax_infected90_list, vmax_infected120_list, vmax_infected150_list,vtotal_infected30_list = \
                         SIR_on_weighted_Graph(school.network, school,
                                               number_of_tests=int(testing_fraction * school.network.number_of_nodes()),
                                               fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,
