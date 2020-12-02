@@ -44,15 +44,15 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
     # total_active_infected150_list = []
     all_test_times = []
     #Testing Monday-Friday
-    for i in range(tmax):
-        day_of_week=i%7
-        if day_of_week not in [5,6]:
-            all_test_times.append(i)
-    #Testing only Monday
     # for i in range(tmax):
     #     day_of_week=i%7
-    #     if day_of_week == 0:
+    #     if day_of_week not in [5,6]:
     #         all_test_times.append(i)
+    #Testing only Monday
+    for i in range(tmax):
+        day_of_week = i%7
+        if day_of_week == 0:
+            all_test_times.append(i)
     for i in range(num_sim):
         #convention 0==Monday, 1 ==Tuesday and so on
         t, S, E, I, T, R, Isolated, status, total_infections_from_community = EoN.fast_SIR(G, gamma=removal_rate,
@@ -225,7 +225,7 @@ cg_scale = 1
 
 intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [0, 0.1, 0.2, 1]  # 0, 0.1,
+testing_fraction_list = [0.5, 1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
 fraction_community_list = [0.0001, 0.001, 0.002, 0.004]  #
@@ -302,11 +302,11 @@ for testing_fraction in testing_fraction_list:
     full_data_to_dump = pd.DataFrame(full_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('Lowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('NewMondayLowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('LowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('NewMondayLowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
