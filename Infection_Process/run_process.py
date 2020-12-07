@@ -8,7 +8,7 @@ import pandas as pd
 from Testing_Strategies import Simple_Random
 
 
-def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_each_time_step_from_community=0,
+def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction_infected_at_each_time_step_from_community=0,
                           removal_rate=1., transmission_scale=1., initial_fraction_infected=0.01, num_sim=1, tmax=160):
     final_infected_FR = []
     within_school_final_infected_FR = []
@@ -42,20 +42,10 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
     # total_active_infected90_list = []
     # total_active_infected120_list = []
     # total_active_infected150_list = []
-    all_test_times = []
-    #Testing Monday-Friday
-    for i in range(tmax):
-        day_of_week=i%7
-        if day_of_week not in [5,6]:
-            all_test_times.append(i)
-    #Testing only Monday
-    # for i in range(tmax):
-    #     day_of_week=i%7
-    #     if day_of_week == 0:
-    #         all_test_times.append(i)
+    weekly_new_infected=[]
     for i in range(num_sim):
         #convention 0==Monday, 1 ==Tuesday and so on
-        t, S, E, I, T, R, Isolated, status, total_infections_from_community = EoN.fast_SIR(G, gamma=removal_rate,
+        t, S, E, I, NI, T, R, Isolated, status, total_infections_from_community = EoN.fast_SIR(G, gamma=removal_rate,
                                                                                            tau=transmission_scale,
                                                                                            transmission_weight="weight",
                                                                                            rho=initial_fraction_infected,
@@ -66,6 +56,26 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
                                                                                            weighted_test=False,
                                                                                            school=school, isolate=True,
                                                                                            tmax=tmax)
+        nvalue=0
+        ntime=6
+        num_of_weeks=20
+        nweeks=0
+        k = 0
+        while nweeks<20:
+            if k < len(t):
+                while t[k]<=ntime:
+                    nvalue+=NI[k]
+                    k+=1
+                    if k >= len(t):
+                        break
+            ntime+=7
+            nweeks+=1
+            weekly_new_infected.append(nvalue)
+            nvalue = 0
+
+        #print(weekly_new_infected)
+
+
         final_infected_FR.append(R[-1] + I[-1])  # Since the process has not ended, we need to add I[-1]
         k = 0
         max_infected30 = 0
@@ -160,7 +170,7 @@ def SIR_on_weighted_Graph(G, school, number_of_tests=0, fraction_infected_at_eac
         if max_infected150 > outbreak:
             num_outbreak_FR150 += 1
 
-    return num_outbreak_FR30 / num_sim, num_outbreak_FR60 / num_sim, num_outbreak_FR90 / num_sim, num_outbreak_FR120 / num_sim, num_outbreak_FR150 / num_sim, total_infected30_list, total_infected60_list, total_infected90_list, total_infected120_list, total_infected150_list, \
+    return weekly_new_infected, num_outbreak_FR30 / num_sim, num_outbreak_FR60 / num_sim, num_outbreak_FR90 / num_sim, num_outbreak_FR120 / num_sim, num_outbreak_FR150 / num_sim, total_infected30_list, total_infected60_list, total_infected90_list, total_infected120_list, total_infected150_list, \
         total_positives30_list,  total_positives60_list,  total_positives90_list,  total_positives120_list,  total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list
 
 
@@ -200,7 +210,7 @@ final_num_outbreak_with_cohort_isolation_random_cohort = []
 interaction_list = [1]
 
 # Edge weights
-high_infection_rate = 2.2 / 100.
+high_infection_rate = 2.86 / 100.
 low_infection_rate = high_infection_rate  # Within cohort edge weight
 # scale=1/20
 # intra_cohort_infection_rate = low_infection_rate*scale   #Across cohort edge weights
@@ -225,10 +235,10 @@ cg_scale = 1
 
 intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [0, 0.1*5 , 0.2*5]  # 0, 0.1,
+testing_fraction_list = [0, 0.5, 1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.002, 0.0035, 0.004,0.005]  #
+fraction_community_list = [0.001, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
@@ -246,16 +256,33 @@ outbreak150 = "150 days"
 
 FN_str = "False Negative Rates"
 Total_Infected_str = "maximum number infected"
+New_Infected_str = "new infected"
 positive_tests_str = "positive tests"
 
 data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], hue_str: [], outbreak_str: []}
 full_data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [], hue_str: [],
                       FN_str:[], Total_Infected_str:[], positive_tests_str:[]
                       }
+new_data_infected = {test_str: [], p_str: [], ICI_str: [], inboud_str: [],  New_Infected_str:[]
+                      }
 
 diagonal = 0
 for testing_fraction in testing_fraction_list:
+    test_fraction = 1
     iter = -1
+    tmax=160
+    all_test_times = []
+    # Testing Monday-Friday
+    if testing_fraction==0.5:
+        for i in range(tmax):
+            day_of_week = i % 14
+            if day_of_week == 0:
+                all_test_times.append(i)
+    if testing_fraction==1:
+        for i in range(tmax):
+            day_of_week = i % 7
+            if day_of_week == 0:
+                all_test_times.append(i)
     print("Testing fraction = ", testing_fraction)
     for p_c in pc_list:
         iter += 1
@@ -273,10 +300,10 @@ for testing_fraction in testing_fraction_list:
                                     capacity_of_bus=capacity_of_bus, num_of_cohorts_per_bus=num_of_cohorts_per_bus,
                                     bus_interaction_rate=bus_interaction_rate)
 
-                    voutbreak30, voutbreak60, voutbreak90, voutbreak120, voutbreak150, vtotal_infected30_list, vtotal_infected60_list, vtotal_infected90_list, vtotal_infected120_list, vtotal_infected150_list ,\
+                    weekly_new_infected_data, voutbreak30, voutbreak60, voutbreak90, voutbreak120, voutbreak150, vtotal_infected30_list, vtotal_infected60_list, vtotal_infected90_list, vtotal_infected120_list, vtotal_infected150_list ,\
                     total_positives30_list, total_positives60_list, total_positives90_list, total_positives120_list, total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list= \
-                        SIR_on_weighted_Graph(school.network, school,
-                                              number_of_tests=int(testing_fraction * school.network.number_of_nodes()),
+                        SIR_on_weighted_Graph(all_test_times, school.network, school,
+                                              number_of_tests=int(test_fraction * school.network.number_of_nodes()),
                                               fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,
                                               removal_rate=removal_rate,
                                               transmission_scale=transmission_scale,
@@ -289,6 +316,12 @@ for testing_fraction in testing_fraction_list:
                     data_infected[hue_str] += [outbreak30,outbreak60,outbreak90,outbreak120,outbreak150]
                     data_infected[outbreak_str] += [voutbreak30,voutbreak60,voutbreak90,voutbreak120,voutbreak150]
 
+                    new_data_infected[test_str] += [testing_fraction] * (num_sim * 20)
+                    new_data_infected[p_str] += [p_c] * (num_sim * 20)
+                    new_data_infected[ICI_str] += [intra_cohort_infection_rate] * (num_sim * 20)
+                    new_data_infected[inboud_str] += [fraction_infected_at_each_time_step_from_community] * (num_sim * 20)
+                    new_data_infected[New_Infected_str] += weekly_new_infected_data
+
                     full_data_infected[test_str] += [testing_fraction] * (num_sim*5)
                     full_data_infected[p_str] += [p_c] * (num_sim*5)
                     full_data_infected[ICI_str] += [intra_cohort_infection_rate] * (num_sim*5)
@@ -300,13 +333,18 @@ for testing_fraction in testing_fraction_list:
 
     data_to_dump = pd.DataFrame(data_infected)
     full_data_to_dump = pd.DataFrame(full_data_infected)
+    new_data_to_dump = pd.DataFrame(new_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('Lowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('NoMaskWeeklyLowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('LowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('NoMaskWeeklyNewInfected' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+        # store the data as binary data stream
+        pickle.dump(new_data_to_dump, filehandle)
+
+    with open('NoMaskWeeklyLowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
