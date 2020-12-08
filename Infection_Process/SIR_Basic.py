@@ -462,7 +462,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         initial_infecteds = [initial_infecteds]
     # else it is assumed to be a list of nodes.
 
-    times, S, E, I,NI, P, R, Isolated = ([tmin], [G.order()],[0], [0], [0], [0], [0],[0])
+    times, S, E, I,NI, P, R, Isolated, CI = ([tmin], [G.order()],[0], [0], [0], [0], [0],[0],[0]) #CI = community infected
     transmissions = []
 
     status[-1]="I" # -1 is dummy source
@@ -474,12 +474,13 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         E.append(E[-1] + 1)  #
         P.append(P[-1])  # no change to number infected tested
         R.append(R[-1])  # one more recovered
+        CI.append(CI[-1])
         Isolated.append(Isolated[-1])
         #print(S)
         status[u] = 'E'
         inf_time = 2  # weibull distribution
         #pred_inf_time[u] = tmin + inf_time
-        Q.add(tmin+inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, Q,
+        Q.add(tmin+inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, CI, Q,
                                                status, at_school, rec_time,
                                                pred_inf_time, transmissions,
                                                trans_and_rec_time_fxn,
@@ -542,11 +543,12 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                     P.append(P[-1])  # no change to number infected tested
                     R.append(R[-1])  # one more recovered
                     Isolated.append(Isolated[-1])
+                    CI.append(CI[-1]+1)
                     # print(S)
                     status[u] = 'E'
                     inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
                     # pred_inf_time[u] = tmin + inf_time
-                    Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, Q,
+                    Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, CI,Q,
                                                                   status, at_school, rec_time,
                                                                   pred_inf_time, transmissions,
                                                                   trans_and_rec_time_fxn,
@@ -565,16 +567,16 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         if cur_test_time < cur_time and cur_test_time < community_spread_time:
             if weighted_test:
                 curr_weight, next_weight, positive_nodes= testing_strategy_with_weights(cur_test_time,
-                                                                               times, S,E, I,NI, P, R, Isolated, status, tested, school, test_cap, curr_weight,next_weight)
+                                                                               times, S,E, I,NI, P, R, Isolated, CI, status, tested, school, test_cap, curr_weight,next_weight)
                 print("next_weight",next_weight)
                 print("curr_weight",curr_weight)
             else:
-                positive_nodes = testing_strategy(cur_test_time, times, S, E, I,NI, P, R, Isolated, status,tested,test_args,test_func,at_school) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+                positive_nodes = testing_strategy(cur_test_time, times, S, E, I,NI, P, R, Isolated, CI, status,tested,test_args,test_func,at_school) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if isolate:
                 new_isolated=find_isolated_cohorts(positive_nodes,school,at_school)
-                isolate_set_of_nodes(cur_test_time,times,S,E,I,NI,P,R,Isolated,Q,new_isolated, at_school)
+                isolate_set_of_nodes(cur_test_time,times,S,E,I,NI,P,R,Isolated,CI,Q,new_isolated, at_school)
             else:
-                isolate_set_of_nodes(cur_test_time,times,S,E,I,NI,P,R,Isolated,Q,positive_nodes,at_school)
+                isolate_set_of_nodes(cur_test_time,times,S,E,I,NI,P,R,Isolated,CI,Q,positive_nodes,at_school)
             if len(all_test_times)>0:
                 cur_test_time = all_test_times.pop(0)
             else:
@@ -598,10 +600,11 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     E = E[len(initial_infecteds):]
     R = R[len(initial_infecteds):]
     P = P[len(initial_infecteds):] # set of nodes that we are aware that are positive
+    CI = CI[len(initial_infecteds):]
     Isolated = Isolated[len(initial_infecteds):]
     if not return_full_data:
         return np.array(times), np.array(S), np.array(E), np.array(I), np.array(NI), \
-               np.array(P), np.array(R), np.array(Isolated),status,transmision_from_community
+               np.array(P), np.array(R), np.array(Isolated),np.array(CI), status,transmision_from_community
     else:
         # strip pred_inf_time and rec_time down to just the values for nodes
         # that became infected
@@ -631,11 +634,11 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 def get_infection_time():
     return 5.4 * weibull_min.rvs(5, size=1)[0]
 
-def isolate_set_of_nodes(time, times, S, E, I, NI, T, R, Isolated, Q, set_of_nodes,at_school,isolation_time=14.0):
+def isolate_set_of_nodes(time, times, S, E, I, NI, T, R, Isolated, CI,Q, set_of_nodes,at_school,isolation_time=14.0):
     for node in set_of_nodes:
-        _isolate_a_node(time, times, S, E, I, NI, T, R, Isolated, Q, node, at_school,isolation_time=isolation_time)
+        _isolate_a_node(time, times, S, E, I, NI, T, R, Isolated, CI,Q, node, at_school,isolation_time=isolation_time)
 
-def _isolate_a_node(time, times, S, E, I, NI, P, R, Isolated, Q, node, at_school, isolation_time=14.):
+def _isolate_a_node(time, times, S, E, I, NI, P, R, Isolated, CI,Q, node, at_school, isolation_time=14.):
     at_school[node]=False
     times.append(time)
     S.append(S[-1])  # no change to number susceptible
@@ -645,9 +648,10 @@ def _isolate_a_node(time, times, S, E, I, NI, P, R, Isolated, Q, node, at_school
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1])  # one more infected tested
     Isolated.append(Isolated[-1]+1)
+    CI.append(CI[-1]+1)
 
     Q.add(time + isolation_time, _unisolate_a_node,
-          args=(times, S, E, I, NI, P, R, Isolated, node, at_school)
+          args=(times, S, E, I, NI, P, R, Isolated, CI,node, at_school)
           )
 
 def debug(to_print,message):
@@ -657,7 +661,7 @@ def debug(to_print,message):
     for i in to_print:
         print(i)
 
-def _unisolate_a_node(time, times, S, E, I, NI, P, R, Isolated, node, at_school):
+def _unisolate_a_node(time, times, S, E, I, NI, P, R, Isolated,CI, node, at_school):
 
     at_school[node]=True
 
@@ -668,12 +672,13 @@ def _unisolate_a_node(time, times, S, E, I, NI, P, R, Isolated, node, at_school)
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1])  # one more infected tested
+    CI.append(CI[-1])
 
     Isolated.append(Isolated[-1]-1)
     #debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
 
 
-def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, status, tested, test_args, test_func,at_school):
+def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, CI,status, tested, test_args, test_func,at_school):
 
     to_test=test_func(*test_args, tested,at_school)########Verify this
     # print(len(to_test))
@@ -696,6 +701,7 @@ def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, status, tested, t
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1] + new_positive)  # one more infected tested
+    CI.append(CI[-1])
     #debug([positive_ids,status,tested],"in testing strategy, new positives (first line). status (second line) , all already tested positive students (third line)")
     Isolated.append(Isolated[-1])
     return positive_ids
@@ -705,7 +711,7 @@ from Testing_Strategies.Simple_Random import random_from_cohorts
 
 
 
-def testing_strategy_with_weights(time, times, S, E, I, NI, P, R, Isolated, status, tested, school, test_cap, curr_weight, next_weight):
+def testing_strategy_with_weights(time, times, S, E, I, NI, P, R, Isolated, CI, status, tested, school, test_cap, curr_weight, next_weight):
 
     total_num_cohorts=school.num_grades*school.num_cohort+1
 
@@ -732,6 +738,7 @@ def testing_strategy_with_weights(time, times, S, E, I, NI, P, R, Isolated, stat
     NI.append(0)  # no change to number infected
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1] + new_positive)  # one more infected tested
+    CI.append(CI[-1])
 
     Isolated.append(Isolated[-1])
 
@@ -770,7 +777,7 @@ def find_isolated_cohorts(positives,school,at_school,threshold=1):
 
 
 
-def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, Q, status, at_school,
+def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, CI, Q, status, at_school,
                         rec_time, pred_inf_time, transmissions,
                         trans_and_rec_time_fxn,
                         trans_and_rec_time_args=()):
@@ -828,6 +835,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
         E.append(E[-1] - 1)  #
         P.append(P[-1])  # no change to infected tested
         R.append(R[-1])  # no change to recovered
+        CI.append(CI[-1])
 
         Isolated.append(Isolated[-1])
 
@@ -840,7 +848,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
         rec_time[target] = time + rec_delay
         if rec_time[target] <= Q.tmax:
             Q.add(rec_time[target], _process_rec_SIR_,
-                  args=(target, times, S, E, I, NI, P, R, Isolated, status))
+                  args=(target, times, S, E, I, NI, P, R, Isolated,CI, status))
         for v in trans_delay:
             inf_time = time
             if int(inf_time % 7) == 5:
@@ -858,7 +866,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
 
             if inf_time <= rec_time[target] and inf_time < pred_inf_time[v] and inf_time <= Q.tmax:
                 Q.add(inf_time, _process_exp_SIR_,
-                      args=(G, target, v, times, S, E, I, NI, P, R, Isolated, Q,
+                      args=(G, target, v, times, S, E, I, NI, P, R, Isolated, CI,Q,
                             status, at_school, rec_time, pred_inf_time,
                             transmissions, trans_and_rec_time_fxn,
                             trans_and_rec_time_args
@@ -868,7 +876,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
 
 
 
-def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, Q, status, at_school,
+def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, CI, Q, status, at_school,
                       rec_time, pred_inf_time, transmissions,
                       trans_and_rec_time_fxn,
                       trans_and_rec_time_args=()):
@@ -903,10 +911,11 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
         P.append(P[-1])  # no change to number infected tested  #
         R.append(R[-1])  # one more recovered
         Isolated.append(Isolated[-1])
+        CI.append(CI[-1])
         status[target] = 'E'
         inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0] #weibull distribution
         Q.add(time+inf_time, _process_trans_SIR_,
-          args=(G, source, target, times, S, E, I, NI, P, R, Isolated, Q, status, at_school,
+          args=(G, source, target, times, S, E, I, NI, P, R, Isolated, CI,Q, status, at_school,
                 rec_time, pred_inf_time, transmissions,
                 trans_and_rec_time_fxn,
                 trans_and_rec_time_args)
@@ -915,7 +924,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
 
 
 
-def _process_rec_SIR_(time, node, times, S, E, I, NI, P, R, Isolated, status):
+def _process_rec_SIR_(time, node, times, S, E, I, NI, P, R, Isolated, CI, status):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
     :Arguments:
@@ -945,7 +954,7 @@ def _process_rec_SIR_(time, node, times, S, E, I, NI, P, R, Isolated, status):
     NI.append(0)  # no change to number infected
     E.append(E[-1])  #
     P.append(P[-1])  # no change to number infected tested
-
+    CI.append(CI[-1])
     R.append(R[-1] + 1)  # one more recovered
     Isolated.append(Isolated[-1])
     status[node] = 'R'
