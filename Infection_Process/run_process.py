@@ -63,6 +63,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
         num_of_weeks=20
         nweeks=0
         k = 0
+        print("len",len(CI),len(t))
         while nweeks<20:
             if k < len(t):
                 while t[k]<=ntime:
