@@ -509,7 +509,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         next_weight = [1 for i in range(total_num_cohorts)]
         next_weight[-1]=10#last index is for teachers
 
-    community_spread_time =tmin+2
+    community_spread_time =tmin
 
     transmision_from_community = 0
     while Q or community_spread_time < tmax or cur_test_time< tmax:  # all the work is done in this while loop.
