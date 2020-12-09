@@ -538,7 +538,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                     times.append(community_spread_time)
                     S.append(S[-1] - 1)  # no change to number susceptible
                     I.append(I[-1])  # one less infected
-                    NI.append(0)  # one less infected
+                    NI.append(1)  # one less infected
                     E.append(E[-1] + 1)  #
                     P.append(P[-1])  # no change to number infected tested
                     R.append(R[-1])  # one more recovered
@@ -831,7 +831,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
         transmissions.append((time, source, target))
         S.append(S[-1])  # one less susceptible
         I.append(I[-1] + 1)  # one more infected
-        NI.append(1)  # no change to number infected
+        NI.append(0)  # no change to number infected
         E.append(E[-1] - 1)  #
         P.append(P[-1])  # no change to infected tested
         R.append(R[-1])  # no change to recovered
@@ -906,7 +906,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
         times.append(time)
         S.append(S[-1]-1)  # no change to number susceptible
         I.append(I[-1])  # one less infected
-        NI.append(0)  # no change to number infected
+        NI.append(1)  # no change to number infected
         E.append(E[-1]+1)  #
         P.append(P[-1])  # no change to number infected tested  #
         R.append(R[-1])  # one more recovered

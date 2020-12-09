@@ -103,7 +103,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
         for k in range(len(t)):
             if t[k] <= 30:
                 max_infected30 = max(I[k], max_infected30)
-                total_positives30 = T[k]  # it will save the last value of T before 30 days
+                total_positives30 = T[k]/I[k]  # it will save the last value of T before 30 days
                 if E[k] != 0:
                     max_false_negative30 = max(E[k] / (S[k] + E[k]), max_false_negative30)
                 else:
@@ -112,7 +112,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 60:
                 max_infected60 = max(I[k], max_infected60)
-                total_positives60 = T[k]
+                total_positives60 = T[k]/I[k]
                 if E[k] != 0:
                     max_false_negative60 = max(E[k] / (S[k] + E[k]), max_false_negative60)
                 else:
@@ -120,7 +120,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 90:
                 max_infected90 = max(I[k], max_infected90)
-                total_positives90 = T[k]
+                total_positives90 = T[k]/I[k]
                 if E[k] != 0:
                     max_false_negative90 = max(E[k] / (S[k] + E[k]), max_false_negative90)
                 else:
@@ -128,7 +128,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 120:
                 max_infected120 = max(I[k], max_infected120)
-                total_positives120 = T[k]
+                total_positives120 = T[k]/I[k]
                 if E[k] != 0:
                     max_false_negative120 = max(E[k] / (S[k] + E[k]), max_false_negative120)
                 else:
@@ -136,7 +136,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 150:
                 max_infected150 = max(I[k], max_infected150)
-                total_positives150 = T[k]
+                total_positives150 = T[k]/I[k]
                 if E[k] != 0:
                     max_false_negative150 = max(E[k] / (S[k] + E[k]), max_false_negative150)
                 else:
