@@ -215,7 +215,7 @@ final_num_outbreak_with_cohort_isolation_random_cohort = []
 interaction_list = [1]
 
 # Edge weights
-high_infection_rate = 2.86 / 100.
+high_infection_rate = 2.2 / 100.
 low_infection_rate = high_infection_rate  # Within cohort edge weight
 # scale=1/20
 # intra_cohort_infection_rate = low_infection_rate*scale   #Across cohort edge weights
@@ -344,15 +344,15 @@ for testing_fraction in testing_fraction_list:
     new_data_to_dump = pd.DataFrame(new_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('NoMaskWeeklyLowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('WithMaskWeeklyLowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('NoMaskWeeklyNewInfected' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('WithMaskWeeklyNewInfected' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(new_data_to_dump, filehandle)
 
-    with open('NoMaskWeeklyLowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('WithMaskWeeklyLowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
