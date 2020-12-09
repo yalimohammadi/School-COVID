@@ -559,12 +559,12 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
             community_spread_time=community_spread_time+1
     # COMMUNITY SPREAD CODE ENDS HERE
 
-        if Q:
-            cur_time = Q.current_time()
-        else:
-            cur_time = tmax + 10
+        # if Q:
+        #     cur_time = Q.current_time()
+        # else:
+        #     cur_time = tmax + 10
 
-        if cur_test_time < cur_time and cur_test_time < community_spread_time:
+        elif cur_test_time < cur_time and cur_test_time < community_spread_time:
             if weighted_test:
                 curr_weight, next_weight, positive_nodes= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I,NI, P, R, Isolated, CI, status, tested, school, test_cap, curr_weight,next_weight)
@@ -680,7 +680,7 @@ def _unisolate_a_node(time, times, S, E, I, NI, P, R, Isolated,CI, node, at_scho
 
 def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, CI,status, tested, test_args, test_func,at_school):
 
-    to_test=test_func(*test_args, tested,at_school)########Verify this
+    to_test=test_func(*test_args, tested, at_school) ########Verify this
     # print(len(to_test))
     new_positive=0
     positive_ids=[]

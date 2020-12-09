@@ -180,7 +180,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
 
 school_sim = 1
-num_sim = 100
+num_sim = 1
 total_students = 6 * 12 * 25  # 2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students / num_grades)
@@ -235,15 +235,15 @@ infection_rate_between_teachers = low_infection_rate * 0.05  # we will fix this 
 # Edges of the graph: As discussed we will assume a complete graph for now
 
 # p_c will take three different values low, mid, high
-pc_list = [2 / total_students, 5 / total_students, 10 / total_students]
+pc_list = [2 / total_students]#, 5 / total_students, 10 / total_students]
 cg_scale = 1
 
-intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
+intra_cohort_infection_list = [low_infection_rate / 10]#, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [0, 0.5, 1]  # 0, 0.1,
+testing_fraction_list = [0.5]#, 1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.001, 0.002, 0.003, 0.004, 0.005]  #
+fraction_community_list = [0.001]#, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
