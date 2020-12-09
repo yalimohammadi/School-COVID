@@ -63,13 +63,12 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
         num_of_weeks=20
         nweeks=0
         k = 0
-        print("len",len(CI),len(t))
-        while nweeks<20:
+        while nweeks<num_of_weeks:
             if k < len(t):
                 while t[k]<=ntime:
                     nvalue+=NI[k]
+                    nvalueCI+=CI[k]
                     k+=1
-                    nvalueCI=CI[k]
                     if k >= len(t):
                         break
             ntime+=7
@@ -77,6 +76,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
             weekly_new_infected.append(nvalue)
             weekly_com_new_infected.append(nvalueCI)
             nvalue = 0
+            nvalueCI=0
 
         #print(weekly_new_infected)
 

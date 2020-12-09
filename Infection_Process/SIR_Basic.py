@@ -474,7 +474,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         E.append(E[-1] + 1)  #
         P.append(P[-1])  # no change to number infected tested
         R.append(R[-1])  # one more recovered
-        CI.append(CI[-1])
+        CI.append(0)
         Isolated.append(Isolated[-1])
         #print(S)
         status[u] = 'E'
@@ -543,7 +543,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                     P.append(P[-1])  # no change to number infected tested
                     R.append(R[-1])  # one more recovered
                     Isolated.append(Isolated[-1])
-                    CI.append(CI[-1]+1)
+                    CI.append(1)
                     # print(S)
                     status[u] = 'E'
                     inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
@@ -648,7 +648,7 @@ def _isolate_a_node(time, times, S, E, I, NI, P, R, Isolated, CI,Q, node, at_sch
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1])  # one more infected tested
     Isolated.append(Isolated[-1]+1)
-    CI.append(CI[-1]+1)
+    CI.append(0)
 
     Q.add(time + isolation_time, _unisolate_a_node,
           args=(times, S, E, I, NI, P, R, Isolated, CI,node, at_school)
@@ -672,7 +672,7 @@ def _unisolate_a_node(time, times, S, E, I, NI, P, R, Isolated,CI, node, at_scho
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1])  # one more infected tested
-    CI.append(CI[-1])
+    CI.append(0)
 
     Isolated.append(Isolated[-1]-1)
     #debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
@@ -701,7 +701,7 @@ def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, CI,status, tested
     E.append(E[-1])  #
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1] + new_positive)  # one more infected tested
-    CI.append(CI[-1])
+    CI.append(0)
     #debug([positive_ids,status,tested],"in testing strategy, new positives (first line). status (second line) , all already tested positive students (third line)")
     Isolated.append(Isolated[-1])
     return positive_ids
@@ -738,7 +738,7 @@ def testing_strategy_with_weights(time, times, S, E, I, NI, P, R, Isolated, CI, 
     NI.append(0)  # no change to number infected
     R.append(R[-1])  # no change to number recovered
     P.append(P[-1] + new_positive)  # one more infected tested
-    CI.append(CI[-1])
+    CI.append(0)
 
     Isolated.append(Isolated[-1])
 
@@ -835,7 +835,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
         E.append(E[-1] - 1)  #
         P.append(P[-1])  # no change to infected tested
         R.append(R[-1])  # no change to recovered
-        CI.append(CI[-1])
+        CI.append(0)
 
         Isolated.append(Isolated[-1])
 
@@ -911,7 +911,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
         P.append(P[-1])  # no change to number infected tested  #
         R.append(R[-1])  # one more recovered
         Isolated.append(Isolated[-1])
-        CI.append(CI[-1])
+        CI.append(0)
         status[target] = 'E'
         inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0] #weibull distribution
         Q.add(time+inf_time, _process_trans_SIR_,
@@ -954,7 +954,7 @@ def _process_rec_SIR_(time, node, times, S, E, I, NI, P, R, Isolated, CI, status
     NI.append(0)  # no change to number infected
     E.append(E[-1])  #
     P.append(P[-1])  # no change to number infected tested
-    CI.append(CI[-1])
+    CI.append(0)
     R.append(R[-1] + 1)  # one more recovered
     Isolated.append(Isolated[-1])
     status[node] = 'R'
