@@ -103,7 +103,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
         for k in range(len(t)):
             if t[k] <= 30:
                 max_infected30 = max(I[k], max_infected30)
-                total_positives30 = T[k]/I[k]  # it will save the last value of T before 30 days
+                total_positives30 = T[k]/(I[k]+R[k])  # it will save the last value of T before 30 days
                 if E[k] != 0:
                     max_false_negative30 = max(E[k] / (S[k] + E[k]), max_false_negative30)
                 else:
@@ -112,7 +112,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 60:
                 max_infected60 = max(I[k], max_infected60)
-                total_positives60 = T[k]/I[k]
+                total_positives60 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative60 = max(E[k] / (S[k] + E[k]), max_false_negative60)
                 else:
@@ -120,7 +120,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 90:
                 max_infected90 = max(I[k], max_infected90)
-                total_positives90 = T[k]/I[k]
+                total_positives90 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative90 = max(E[k] / (S[k] + E[k]), max_false_negative90)
                 else:
@@ -128,7 +128,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 120:
                 max_infected120 = max(I[k], max_infected120)
-                total_positives120 = T[k]/I[k]
+                total_positives120 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative120 = max(E[k] / (S[k] + E[k]), max_false_negative120)
                 else:
@@ -136,7 +136,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 150:
                 max_infected150 = max(I[k], max_infected150)
-                total_positives150 = T[k]/I[k]
+                total_positives150 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative150 = max(E[k] / (S[k] + E[k]), max_false_negative150)
                 else:
@@ -180,7 +180,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
 
 school_sim = 1
-num_sim = 1
+num_sim = 100
 total_students = 6 * 12 * 25  # 2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students / num_grades)
@@ -235,15 +235,15 @@ infection_rate_between_teachers = low_infection_rate * 0.05  # we will fix this 
 # Edges of the graph: As discussed we will assume a complete graph for now
 
 # p_c will take three different values low, mid, high
-pc_list = [2 / total_students]#, 5 / total_students, 10 / total_students]
+pc_list = [2 / total_students, 5 / total_students, 10 / total_students]
 cg_scale = 1
 
-intra_cohort_infection_list = [low_infection_rate / 10]#, low_infection_rate / 5, low_infection_rate]
+intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [0.5]#, 1]  # 0, 0.1,
+testing_fraction_list = [0, 0.5, 1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.001]#, 0.002, 0.003, 0.004, 0.005]  #
+fraction_community_list = [0.001, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
@@ -361,29 +361,3 @@ for testing_fraction in testing_fraction_list:
 # with open('nnnewoutput0t'+'.data', 'wb') as filehandle:
 #         # store the data as binary data stream
 #         pickle.dump(data_to_dump, filehandle)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
