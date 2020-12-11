@@ -240,7 +240,7 @@ cg_scale = 1
 
 intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [0, 0.5, 1]  # 0, 0.1,
+testing_fraction_list = [2]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
 fraction_community_list = [0.001, 0.002, 0.003, 0.004, 0.005]  #
@@ -289,6 +289,12 @@ for testing_fraction in testing_fraction_list:
         for i in range(tmax):
             day_of_week = i % 7
             if day_of_week == 0:
+                all_test_times.append(i)
+
+    if testing_fraction==2:
+        for i in range(tmax):
+            day_of_week = i % 7
+            if day_of_week == 0 or day_of_week==3:
                 all_test_times.append(i)
     print("Testing fraction = ", testing_fraction)
     for p_c in pc_list:
