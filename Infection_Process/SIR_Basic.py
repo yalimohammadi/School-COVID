@@ -94,13 +94,13 @@ class myQueue(object):
 ### Code starting here does event-driven simulations ###
 
 
-def _find_trans_and_rec_delays_SIR_(node, sus_neighbors, trans_time_fxn,
+def _find_trans_and_rec_delays_SIR_(node, sus_neighbors,trans_array, trans_time_fxn,
                                     rec_time_fxn, trans_time_args=(),
                                     rec_time_args=()):
     rec_delay = rec_time_fxn(node, *rec_time_args)
     trans_delay = {}
     for target in sus_neighbors:
-        trans_delay[target] = trans_time_fxn(node, target, *trans_time_args)
+        trans_delay[target] = trans_time_fxn(node, target, trans_array, *trans_time_args)
     return trans_delay, rec_delay
 
 
@@ -283,7 +283,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                                                 transmission_weight,
                                                                 recovery_weight)
 
-        def trans_time_fxn(source, target, trans_rate_fxn, trans_array):
+        def trans_time_fxn(source, target, trans_array, trans_rate_fxn):
             rate = trans_rate_fxn(source, target)
             if rate > 0:
                 if trans_array[source][target]>0:
@@ -477,7 +477,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
 
     if not trans_and_rec_time_fxn:  # we define the joint function.
         trans_and_rec_time_fxn = _find_trans_and_rec_delays_SIR_
-        trans_and_rec_time_args = (trans_time_fxn, rec_time_fxn, trans_time_args, rec_time_args, trans_array)
+        trans_and_rec_time_args = (trans_time_fxn, rec_time_fxn, trans_time_args, rec_time_args)
 
     # now we define the initial setup.
     status = defaultdict(lambda: 'S')  # node status defaults to 'S'
@@ -530,7 +530,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         #pred_inf_time[u] = tmin + inf_time
         Q.add(tmin+inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, CI, Q,
                                                status, at_school, rec_time,
-                                               pred_inf_time, transmissions,
+                                               pred_inf_time, transmissions,trans_array,
                                                trans_and_rec_time_fxn,
                                                trans_and_rec_time_args
                                                )
@@ -839,7 +839,7 @@ def find_isolated_cohorts(positives,school,at_school,threshold=1):
 
 
 def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, CI, Q, status, at_school,
-                        rec_time, pred_inf_time, transmissions,
+                        rec_time, pred_inf_time, transmissions, trans_array,
                         trans_and_rec_time_fxn,
                         trans_and_rec_time_args=()):
     r'''
@@ -902,7 +902,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
 
         suscep_neighbors = [v for v in G.neighbors(target) if status[v] == 'S']
 
-        trans_delay, rec_delay = trans_and_rec_time_fxn(target, suscep_neighbors,
+        trans_delay, rec_delay = trans_and_rec_time_fxn(target, suscep_neighbors,trans_array,
                                                         *trans_and_rec_time_args)
         # print("trans_delay, rec_delay", trans_delay, rec_delay)
 
@@ -929,7 +929,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
                 Q.add(inf_time, _process_exp_SIR_,
                       args=(G, target, v, times, S, E, I, NI, P, R, Isolated, CI,Q,
                             status, at_school, rec_time, pred_inf_time,
-                            transmissions, trans_and_rec_time_fxn,
+                            transmissions,trans_array, trans_and_rec_time_fxn,
                             trans_and_rec_time_args
                             )
                       )
@@ -938,7 +938,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
 
 
 def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, CI, Q, status, at_school,
-                      rec_time, pred_inf_time, transmissions,
+                      rec_time, pred_inf_time, transmissions,trans_array,
                       trans_and_rec_time_fxn,
                       trans_and_rec_time_args=(), from_comm=False):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
@@ -980,7 +980,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
         inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0] #weibull distribution
         Q.add(time+inf_time, _process_trans_SIR_,
           args=(G, source, target, times, S, E, I, NI, P, R, Isolated, CI,Q, status, at_school,
-                rec_time, pred_inf_time, transmissions,
+                rec_time, pred_inf_time, transmissions, trans_array,
                 trans_and_rec_time_fxn,
                 trans_and_rec_time_args)
           )

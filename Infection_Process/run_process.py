@@ -60,6 +60,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
     #     com_inf_dict = np.random.geometric(fraction_infected_at_each_time_step_from_community, size=G.order())
 
     avg_time=0
+    trans_array=np.zeros((G.number_of_nodes(),G.number_of_nodes()))
     for i in range(num_sim):
         start_time=time.time()
         print("Start")
@@ -74,7 +75,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
                                                                                            test_func=Simple_Random.fully_random_test,
                                                                                            weighted_test=False,
                                                                                            school=school, isolate=True,
-                                                                                           tmax=tmax, com_inf_dict=com_inf_dict, test_fraction=test_fraction)
+                                                                                           tmax=tmax, com_inf_dict=com_inf_dict, test_fraction=test_fraction,trans_array=trans_array)
         total_time=time.time()-start_time
         avg_time+=total_time
         print("Iteration time = ",total_time)
