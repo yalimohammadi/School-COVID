@@ -547,7 +547,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         Q.add(tmin+com_inf_time, _process_exp_SIR_,
               args=(G, -1, v, times, S, E, I, NI, P, R, Isolated, CI, Q,
                     status, at_school, rec_time, pred_inf_time,
-                    transmissions, trans_and_rec_time_fxn,
+                    transmissions,trans_array, trans_and_rec_time_fxn,
                     trans_and_rec_time_args, True
                     )
               )
