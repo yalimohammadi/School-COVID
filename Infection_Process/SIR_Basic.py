@@ -166,7 +166,7 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
              rho=None, tmin=0, tmax=float('Inf'), transmission_weight=None,
              recovery_weight=None, return_full_data=False, sim_kwargs=None,
-             all_test_times=[], fraction_of_infections_from_community_per_day=0.0, test_args=None,test_func=None,weighted_test=True,school=None, isolate=False):
+             all_test_times=[], fraction_of_infections_from_community_per_day=0.0, test_args=None,test_func=None,weighted_test=True,school=None, isolate=False, com_inf_dict=[], test_fraction=0):
     r'''
     fast SIR simulation for exponentially distributed infection and
     recovery times
@@ -266,7 +266,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   sim_kwargs=sim_kwargs, all_test_times=all_test_times,
                                   fraction_of_infections_from_community_per_day=fraction_of_infections_from_community_per_day,
                                   test_args=test_args,test_func=test_func,weighted_test=weighted_test,
-                                  school=school,isolate=isolate)
+                                  school=school,isolate=isolate, com_inf_dict=com_inf_dict, test_fraction=test_fraction)
 
 
     else:
@@ -285,7 +285,7 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
                                   initial_recovereds=initial_recovereds,
                                   rho=rho, tmin=tmin, tmax=tmax,
                                   return_full_data=return_full_data,
-                                  sim_kwargs=sim_kwargs)
+                                  sim_kwargs=sim_kwargs,com_inf_dict=com_inf_dict, test_fraction=test_fraction)
 
 
 
@@ -302,7 +302,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
                        rho=None, tmin=0, tmax=float('Inf'),
                        return_full_data=False, sim_kwargs=None,
                        all_test_times=[], fraction_of_infections_from_community_per_day=0.0, test_args=(), test_func=None,
-                       weighted_test=True, school=None,isolate=False):
+                       weighted_test=True, school=None,isolate=False,com_inf_dict=[],test_fraction=0):
     r'''
     A modification of the algorithm in figure A.3 of Kiss, Miller, &
     Simon to allow for user-defined rules governing time of
@@ -466,6 +466,7 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     transmissions = []
 
     status[-1]="I" # -1 is dummy source
+    at_school[-1]=True
     for u in initial_infecteds:
         times.append(tmin)
         S.append(S[-1] - 1)  # no change to number susceptible
@@ -493,6 +494,17 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
     # and rec_time is correct.
     # So if return_full_data is true, these are correct
 
+
+    for v in G.nodes():
+        com_inf_time = com_inf_dict[v]
+        Q.add(tmin+com_inf_time, _process_exp_SIR_,
+              args=(G, -1, v, times, S, E, I, NI, P, R, Isolated, CI, Q,
+                    status, at_school, rec_time, pred_inf_time,
+                    transmissions, trans_and_rec_time_fxn,
+                    trans_and_rec_time_args, True
+                    )
+              )
+
     all_test_times=[i+tmin for i in all_test_times] # calibrate with min simulation time
     cur_test_time = tmax + 10
     if len(all_test_times) > 0:
@@ -509,10 +521,10 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         next_weight = [1 for i in range(total_num_cohorts)]
         next_weight[-1]=10#last index is for teachers
 
-    community_spread_time =tmin
+    #community_spread_time =tmin
 
     transmision_from_community = 0
-    while Q or community_spread_time < tmax or cur_test_time< tmax:  # all the work is done in this while loop.
+    while Q or cur_test_time< tmax: #or community_spread_time < tmax   # all the work is done in this while loop.
         if Q:
             cur_time = Q.current_time()
         else:
@@ -522,41 +534,41 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         #     break
         #COMMUNITY SPREAD CODE
 
-        if community_spread_time < cur_time and community_spread_time <= cur_test_time:
-
-            # print("")
-            # community_infections = random.sample(G.nodes(), int(round(G.order() * fraction_of_infections_from_community_per_day)))
-            # if the fraction of outside is less than 1/size of school, this will be zero
-            # change it to binomial maybr?
-            indices=(np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
-            community_infections= np.where(indices==1)[0]
-
-            for u in community_infections:
-
-                if status[u]=='S':
-                    transmision_from_community+=1
-                    times.append(community_spread_time)
-                    S.append(S[-1] - 1)  # no change to number susceptible
-                    I.append(I[-1])  # one less infected
-                    NI.append(1)  # one less infected
-                    E.append(E[-1] + 1)  #
-                    P.append(P[-1])  # no change to number infected tested
-                    R.append(R[-1])  # one more recovered
-                    Isolated.append(Isolated[-1])
-                    CI.append(1)
-                    # print(S)
-                    status[u] = 'E'
-                    inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
-                    # pred_inf_time[u] = tmin + inf_time
-                    Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, CI,Q,
-                                                                  status, at_school, rec_time,
-                                                                  pred_inf_time, transmissions,
-                                                                  trans_and_rec_time_fxn,
-                                                                  trans_and_rec_time_args
-                                                                  )
-                      )
-
-            community_spread_time=community_spread_time+1
+        # if community_spread_time < cur_time and community_spread_time <= cur_test_time:
+        #
+        #     # print("")
+        #     # community_infections = random.sample(G.nodes(), int(round(G.order() * fraction_of_infections_from_community_per_day)))
+        #     # if the fraction of outside is less than 1/size of school, this will be zero
+        #     # change it to binomial maybr?
+        #     indices=(np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
+        #     community_infections= np.where(indices==1)[0]
+        #
+        #     for u in community_infections:
+        #
+        #         if status[u]=='S':
+        #             transmision_from_community+=1
+        #             times.append(community_spread_time)
+        #             S.append(S[-1] - 1)  # no change to number susceptible
+        #             I.append(I[-1])  # one less infected
+        #             NI.append(1)  # one less infected
+        #             E.append(E[-1] + 1)  #
+        #             P.append(P[-1])  # no change to number infected tested
+        #             R.append(R[-1])  # one more recovered
+        #             Isolated.append(Isolated[-1])
+        #             CI.append(1)
+        #             # print(S)
+        #             status[u] = 'E'
+        #             inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0]  # weibull distribution
+        #             # pred_inf_time[u] = tmin + inf_time
+        #             Q.add(community_spread_time + inf_time, _process_trans_SIR_, args=(G, -1, u, times, S, E, I,NI, P, R, Isolated, CI,Q,
+        #                                                           status, at_school, rec_time,
+        #                                                           pred_inf_time, transmissions,
+        #                                                           trans_and_rec_time_fxn,
+        #                                                           trans_and_rec_time_args
+        #                                                           )
+        #               )
+        #
+        #     community_spread_time=community_spread_time+1
     # COMMUNITY SPREAD CODE ENDS HERE
 
         # if Q:
@@ -564,14 +576,14 @@ def fast_nonMarkov_SIR(G, trans_time_fxn=None,
         # else:
         #     cur_time = tmax + 10
 
-        elif cur_test_time < cur_time and cur_test_time < community_spread_time:
+        if cur_test_time < cur_time: # and cur_test_time < community_spread_time:
             if weighted_test:
                 curr_weight, next_weight, positive_nodes= testing_strategy_with_weights(cur_test_time,
                                                                                times, S,E, I,NI, P, R, Isolated, CI, status, tested, school, test_cap, curr_weight,next_weight)
                 print("next_weight",next_weight)
                 print("curr_weight",curr_weight)
             else:
-                positive_nodes = testing_strategy(cur_test_time, times, S, E, I,NI, P, R, Isolated, CI, status,tested,test_args,test_func,at_school) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
+                positive_nodes = testing_strategy(cur_test_time, times, S, E, I,NI, P, R, Isolated, CI, status,tested,test_args,test_func,at_school,test_fraction) # call process_test_SIR on all indivduals who are in state S and I and they are tested at that particular moment
             if isolate:
                 new_isolated=find_isolated_cohorts(positive_nodes,school,at_school)
                 isolate_set_of_nodes(cur_test_time,times,S,E,I,NI,P,R,Isolated,CI,Q,new_isolated, at_school)
@@ -678,9 +690,11 @@ def _unisolate_a_node(time, times, S, E, I, NI, P, R, Isolated,CI, node, at_scho
     #debug([[Isolated[-1],Isolated[-2]],node, at_school[node]] ,"updated isolation")
 
 
-def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, CI,status, tested, test_args, test_func,at_school):
-
-    to_test=test_func(*test_args, tested, at_school) ########Verify this
+def testing_strategy(time, times, S, E, I, NI, P, R, Isolated, CI,status, tested, test_args, test_func,at_school,test_fraction=0):
+    if test_fraction==1:
+        to_test = tested.keys()
+    else:
+        to_test=test_func(*test_args, tested, at_school) ########Verify this
     # print(len(to_test))
     new_positive=0
     positive_ids=[]
@@ -879,7 +893,7 @@ def _process_trans_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isola
 def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolated, CI, Q, status, at_school,
                       rec_time, pred_inf_time, transmissions,
                       trans_and_rec_time_fxn,
-                      trans_and_rec_time_args=()):
+                      trans_and_rec_time_args=(), from_comm=False):
     r'''From figure A.3 of Kiss, Miller, & Simon.  Please cite the
     book if using this algorithm.
     :Arguments:
@@ -902,7 +916,7 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
     I : appends new I (decreased by 1)
     R : appends new R (increased by 1)
     '''
-    if status[source] == 'I' and status[target] == 'S' and at_school[source] and at_school[target]:
+    if status[source] == 'I' and status[target] == 'S' and (from_comm or (at_school[source] and at_school[target])):
         times.append(time)
         S.append(S[-1]-1)  # no change to number susceptible
         I.append(I[-1])  # one less infected
@@ -911,7 +925,10 @@ def _process_exp_SIR_(time, G, source, target, times, S, E, I, NI, P, R, Isolate
         P.append(P[-1])  # no change to number infected tested  #
         R.append(R[-1])  # one more recovered
         Isolated.append(Isolated[-1])
-        CI.append(0)
+        if from_comm:
+            CI.append(1)
+        else:
+            CI.append(0)
         status[target] = 'E'
         inf_time = get_infection_time()#5.4 * weibull_min.rvs(5, size=1)[0] #weibull distribution
         Q.add(time+inf_time, _process_trans_SIR_,
