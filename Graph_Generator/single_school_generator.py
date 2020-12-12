@@ -183,7 +183,7 @@ class School:
         for id in student_ids:
             if teacher:
                 if id not in self.student_to_cohort.keys():
-                    self.student_to_cohort=[]
+                    self.student_to_cohort[id]=[]
                 if cohort_id not in self.student_to_cohort[id]:
                     self.student_to_cohort[id].append(cohort_id)
             else:
