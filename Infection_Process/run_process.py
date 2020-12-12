@@ -222,8 +222,8 @@ low_infection_rate = high_infection_rate  # Within cohort edge weight
 # intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
 
 
-teacher_student_infection_rate = low_infection_rate * 1.5
-student_teacher_infection_rate = low_infection_rate
+teacher_student_infection_rate = low_infection_rate * 0
+student_teacher_infection_rate = low_infection_rate  * 0
 
 # Initial infected and community spread
 initial_fraction_infected = 0.0001  # initial fraction infected (fix this)
@@ -350,15 +350,15 @@ for testing_fraction in testing_fraction_list:
     new_data_to_dump = pd.DataFrame(new_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('withMaskHS' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskHSVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('withMaskHSNewInfected' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskHSNewInfectedVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(new_data_to_dump, filehandle)
 
-    with open('withMaskHSFull' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskHSFullVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
