@@ -119,7 +119,7 @@ class School:
 
 
         teacher_edges=[]
-        num_cohorts_per_teacher = 1
+        num_cohorts_per_teacher = 4
         total_cohorts=self.num_cohort*self.num_grades
         for t in self.teachers_id:
             for i in range(num_cohorts_per_teacher):
@@ -181,7 +181,11 @@ class School:
 
     def assign_student_to_cohort(self,student_ids,cohort_id):
         for id in student_ids:
-            self.student_to_cohort[id]=cohort_id
+            if id in self.student_to_cohort.keys():
+                if cohort_id not in self.student_to_cohort[id]:
+                    self.student_to_cohort[id].append(cohort_id)
+            else:
+                self.student_to_cohort[id]=cohort_id
 
 
 

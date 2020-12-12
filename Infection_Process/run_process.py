@@ -227,8 +227,8 @@ student_teacher_infection_rate = low_infection_rate
 
 # Initial infected and community spread
 initial_fraction_infected = 0.0001  # initial fraction infected (fix this)
-
-infection_rate_between_teachers = low_infection_rate * 0.05  # we will fix this for Nov 13 plot
+###################NOTE I changed next line!!!
+infection_rate_between_teachers = low_infection_rate * 1  # we will fix this for Nov 13 plot
 
 # SENSITIVITY PARAMETERS
 
@@ -240,7 +240,7 @@ cg_scale = 1
 
 intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [2]  # 0, 0.1,
+testing_fraction_list = [0,0.5,1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
 fraction_community_list = [0.001, 0.002, 0.003, 0.004, 0.005]  #
@@ -350,15 +350,15 @@ for testing_fraction in testing_fraction_list:
     new_data_to_dump = pd.DataFrame(new_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('WithMaskWeeklyLowoutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskHS' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('WithMaskWeeklyNewInfected' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskHSNewInfected' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(new_data_to_dump, filehandle)
 
-    with open('WithMaskWeeklyLowFulloutput' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskHSFull' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
