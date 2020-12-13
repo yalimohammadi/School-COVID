@@ -20,5 +20,5 @@ print(res['result'], res['message'], data['inpatient_bed_covid_utilization_numer
 
 res = Epidata.covidcast('hospital-admissions', 'smoothed_adj_covid19_from_claims', 'day', 'county', [20201205], 42003)
 # print(res['result'], res['message'], len(res['epidata']))
-print(res)
+print(res) #TODO: figure out how to get county data
 
