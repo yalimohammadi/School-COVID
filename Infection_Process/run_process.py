@@ -4,11 +4,13 @@ import numpy as np
 import scipy as sp
 import networkx as nx
 import pandas as pd
+from collections import defaultdict
+import time
 
 from Testing_Strategies import Simple_Random
 
 
-def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction_infected_at_each_time_step_from_community=0,
+def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_fraction=0, fraction_infected_at_each_time_step_from_community=0,
                           removal_rate=1., transmission_scale=1., initial_fraction_infected=0.01, num_sim=1, tmax=160):
     final_infected_FR = []
     within_school_final_infected_FR = []
@@ -44,7 +46,24 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
     # total_active_infected150_list = []
     weekly_new_infected=[]
     weekly_com_new_infected =[]
+
+    tmin=0
+
+    # will change this code later
+
+
+    # com_inf_dict is they array, where com_inf_dict[v] holds the infection time of individual v from the community.
+    com_inf_dict =  np.random.geometric(fraction_infected_at_each_time_step_from_community, size=G.order())
+    # indices = (np.random.uniform(size=G.order()) < fraction_of_infections_from_community_per_day) * 1
+    # community_infections = np.where(indices == 1)[0]
+    # for u in community_infections:
+    #     com_inf_dict = np.random.geometric(fraction_infected_at_each_time_step_from_community, size=G.order())
+
+    avg_time=0
+    trans_array=np.zeros((G.number_of_nodes(),G.number_of_nodes()))
     for i in range(num_sim):
+        start_time=time.time()
+        print("Start")
         #convention 0==Monday, 1 ==Tuesday and so on
         t, S, E, I, NI, T, R, Isolated, CI,status, total_infections_from_community = EoN.fast_SIR(G, gamma=removal_rate,
                                                                                            tau=transmission_scale,
@@ -56,7 +75,10 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
                                                                                            test_func=Simple_Random.fully_random_test,
                                                                                            weighted_test=False,
                                                                                            school=school, isolate=True,
-                                                                                           tmax=tmax)
+                                                                                           tmax=tmax, com_inf_dict=com_inf_dict, test_fraction=test_fraction,trans_array=trans_array)
+        total_time=time.time()-start_time
+        avg_time+=total_time
+        print("Iteration time = ",total_time)
         nvalue=0
         nvalueCI=0
         ntime=6
@@ -103,7 +125,8 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
         for k in range(len(t)):
             if t[k] <= 30:
                 max_infected30 = max(I[k], max_infected30)
-                total_positives30 = T[k]/(I[k]+R[k])  # it will save the last value of T before 30 days
+                if I[k]+R[k]!=0:
+                    total_positives30 = T[k]/(I[k]+R[k])  # it will save the last value of T before 30 days
                 if E[k] != 0:
                     max_false_negative30 = max(E[k] / (S[k] + E[k]), max_false_negative30)
                 else:
@@ -112,7 +135,8 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 60:
                 max_infected60 = max(I[k], max_infected60)
-                total_positives60 = T[k]/(I[k]+R[k])
+                if I[k] + R[k] != 0:
+                    total_positives60 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative60 = max(E[k] / (S[k] + E[k]), max_false_negative60)
                 else:
@@ -120,7 +144,8 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 90:
                 max_infected90 = max(I[k], max_infected90)
-                total_positives90 = T[k]/(I[k]+R[k])
+                if I[k] + R[k] != 0:
+                    total_positives90 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative90 = max(E[k] / (S[k] + E[k]), max_false_negative90)
                 else:
@@ -128,7 +153,8 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 120:
                 max_infected120 = max(I[k], max_infected120)
-                total_positives120 = T[k]/(I[k]+R[k])
+                if I[k] + R[k] != 0:
+                    total_positives120 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative120 = max(E[k] / (S[k] + E[k]), max_false_negative120)
                 else:
@@ -136,7 +162,8 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
 
             if t[k] <= 150:
                 max_infected150 = max(I[k], max_infected150)
-                total_positives150 = T[k]/(I[k]+R[k])
+                if I[k] + R[k] != 0:
+                    total_positives150 = T[k]/(I[k]+R[k])
                 if E[k] != 0:
                     max_false_negative150 = max(E[k] / (S[k] + E[k]), max_false_negative150)
                 else:
@@ -175,12 +202,14 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0, fraction
         if max_infected150 > outbreak:
             num_outbreak_FR150 += 1
 
+    print("Average time of the iteration=",avg_time)
+
     return weekly_new_infected, weekly_com_new_infected, num_outbreak_FR30 / num_sim, num_outbreak_FR60 / num_sim, num_outbreak_FR90 / num_sim, num_outbreak_FR120 / num_sim, num_outbreak_FR150 / num_sim, total_infected30_list, total_infected60_list, total_infected90_list, total_infected120_list, total_infected150_list, \
         total_positives30_list,  total_positives60_list,  total_positives90_list,  total_positives120_list,  total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list
 
 
 school_sim = 1
-num_sim = 100
+num_sim = 10
 total_students = 6 * 12 * 25  # 2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students / num_grades)
@@ -236,15 +265,15 @@ infection_rate_between_teachers = low_infection_rate * 1  # we will fix this for
 # Edges of the graph: As discussed we will assume a complete graph for now
 
 # p_c will take three different values low, mid, high
-pc_list = [2 / total_students, 5 / total_students, 10 / total_students]
+pc_list = [2 / total_students]#, 5 / total_students, 10 / total_students]
 cg_scale = 1
 
-intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, low_infection_rate]
+intra_cohort_infection_list = [low_infection_rate / 10]#, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [0,0.5,1]  # 0, 0.1,
+testing_fraction_list = [1]#,0.5,1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.001, 0.002, 0.003, 0.004, 0.005]  #
+fraction_community_list = [0.001]#, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
@@ -318,6 +347,7 @@ for testing_fraction in testing_fraction_list:
                     total_positives30_list, total_positives60_list, total_positives90_list, total_positives120_list, total_positives150_list, FN30_list, FN60_list, FN90_list, FN120_list, FN150_list= \
                         SIR_on_weighted_Graph(all_test_times, school.network, school,
                                               number_of_tests=int(test_fraction * school.network.number_of_nodes()),
+                                              test_fraction=test_fraction,
                                               fraction_infected_at_each_time_step_from_community=fraction_infected_at_each_time_step_from_community,
                                               removal_rate=removal_rate,
                                               transmission_scale=transmission_scale,
