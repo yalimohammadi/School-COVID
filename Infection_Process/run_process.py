@@ -188,6 +188,7 @@ cohort_sizes = 12
 # cohort_size_list=[8,10,12,14,16]
 num_cohort = int(num_of_students_within_grade / cohort_sizes)
 num_teachers = num_cohort * num_grades
+num_teachers = 0 # same as vaccinating teachers
 
 school_size = total_students + num_teachers
 
@@ -222,8 +223,8 @@ low_infection_rate = high_infection_rate  # Within cohort edge weight
 # intra_grade_infection_rate=needed (1/7) #there is no intra_grade_infection_rate variable, but intra_grade_infection_rate=intra_cohort_infection_rate in the current implementation
 
 
-teacher_student_infection_rate = low_infection_rate * 0
-student_teacher_infection_rate = low_infection_rate  * 0
+teacher_student_infection_rate = low_infection_rate
+student_teacher_infection_rate = low_infection_rate
 
 # Initial infected and community spread
 initial_fraction_infected = 0.0001  # initial fraction infected (fix this)
