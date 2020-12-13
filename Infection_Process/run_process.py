@@ -217,7 +217,7 @@ cohort_sizes = 12
 # cohort_size_list=[8,10,12,14,16]
 num_cohort = int(num_of_students_within_grade / cohort_sizes)
 num_teachers = num_cohort * num_grades
-num_teachers = 0 # same as vaccinating teachers
+# num_teachers = 0 # same as vaccinating teachers
 
 school_size = total_students + num_teachers
 
@@ -258,7 +258,7 @@ student_teacher_infection_rate = low_infection_rate
 # Initial infected and community spread
 initial_fraction_infected = 0.0001  # initial fraction infected (fix this)
 ###################NOTE I changed next line!!!
-infection_rate_between_teachers = low_infection_rate * 1  # we will fix this for Nov 13 plot
+infection_rate_between_teachers = low_infection_rate * 0.01  # we will fix this for Nov 13 plot
 
 # SENSITIVITY PARAMETERS
 
