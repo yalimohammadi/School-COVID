@@ -160,51 +160,6 @@ def _trans_and_rec_time_Markovian_const_trans_(node, sus_neighbors, tau, rec_rat
     return trans_delay, duration
 
 
-def _get_rate_functions_(G, tau, gamma, transmission_weight=None,
-                         recovery_weight=None):
-    r'''
-    Arguments :
-        G : networkx Graph
-            the graph disease spreads on
-
-        tau : number
-            disease parameter giving edge transmission rate (subject to edge scaling)
-
-        gamma : number (default None)
-            disease parameter giving typical recovery rate,
-
-        transmission_weight : string (default None)
-            The attribute name under which transmission rates are saved.
-            `G.adj[u][v][transmission_weight]` scales up or down the recovery rate.
-            (note this is G.edge[u][v][..] in networkx 1.x and
-            G.edges[u,v][..] in networkx 2.x.
-            The backwards compatible version is G.adj[u][v]
-            https://networkx.github.io/documentation/stable/release/migration_guide_from_1.x_to_2.0.html)
-
-        recovery_weight : string       (default None)
-            a label for a weight given to the nodes to scale their
-            recovery rates
-                `gamma_i = G.node[i][recovery_weight]*gamma`
-    Returns :
-        : trans_rate_fxn, rec_rate_fxn
-            Two functions such that
-            - `trans_rate_fxn(u,v)` is the transmission rate from u to v and
-            - `rec_rate_fxn(u)` is the recovery rate of u.
-'''
-    if transmission_weight is None:
-        trans_rate_fxn = lambda x, y: tau
-    else:
-        try:
-            trans_rate_fxn = lambda x, y: tau * G.adj[x][y][transmission_weight]
-        except AttributeError:  # apparently you have networkx v1.x not v2.x
-            trans_rate_fxn = lambda x, y: tau * G.edge[x][y][transmission_weight]
-
-    if recovery_weight is None:
-        rec_rate_fxn = lambda x: gamma
-    else:
-        rec_rate_fxn = lambda x: gamma * G.node[x][recovery_weight]
-
-    return trans_rate_fxn, rec_rate_fxn
 
 
 def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
@@ -279,7 +234,8 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
     # tested in test_SIR_dynamics
 
     if transmission_weight is not None or tau * gamma == 0:
-        trans_rate_fxn, rec_rate_fxn = _get_rate_functions_(G, tau, gamma,
+        print("Entering if")
+        trans_rate_fxn, rec_rate_fxn = EoN._get_rate_functions_(G, tau, gamma,
                                                                 transmission_weight,
                                                                 recovery_weight)
 
