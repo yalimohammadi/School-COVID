@@ -1,6 +1,7 @@
 #READ this: https://cmu-delphi.github.io/delphi-epidata/api/README.html
 # https://cmu-delphi.github.io/covidcast/covidcast-py/html/
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 from delphi_epidata import Epidata
 from datetime import date
 
@@ -18,7 +19,14 @@ print(res['result'], res['message'], data['inpatient_bed_covid_utilization_numer
 # # print(res['result'], res['message'], len(res['epidata']))
 # print(res)
 
-res = Epidata.covidcast('hospital-admissions', 'smoothed_adj_covid19_from_claims', 'day', 'county', [20201205], 42003)
-# print(res['result'], res['message'], len(res['epidata']))
+res = Epidata.covidcast('hospital-admissions', 'smoothed_covid19_from_claims', 'day', 'state', [20201105], "CA")
+print(res['result'], res['message'])
+res = Epidata.covidcast('hospital-admissions', 'smoothed_covid19_from_claims', 'day', 'county', [Epidata.range(20201101, 20201128)], "06037")
+data= res['epidata']
+
+def get_covid_data(epidata):
+    for dic in epidata:
+        dic["value"]
+
 print(res) #TODO: figure out how to get county data: URL  https://cmu-delphi.github.io/delphi-epidata/api/covidcast.html
 
