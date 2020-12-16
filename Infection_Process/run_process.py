@@ -16,6 +16,10 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
     within_school_final_infected_FR = []
     final_infected_RWC = [0]
     outbreak = .05 * G.number_of_nodes()
+
+    ##########change following
+    outbreak= 3.
+
     num_outbreak_FR30 = 0.0
     num_outbreak_FR60 = 0.0
     num_outbreak_FR90 = 0.0
