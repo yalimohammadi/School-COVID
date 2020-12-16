@@ -209,7 +209,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
 
 
 school_sim = 1
-num_sim = 10
+num_sim = 100
 total_students = 6 * 12 * 25  # 2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students / num_grades)
