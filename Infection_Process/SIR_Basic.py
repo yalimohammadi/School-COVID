@@ -234,7 +234,6 @@ def fast_SIR(G, tau, gamma, initial_infecteds=None, initial_recovereds=None,
     # tested in test_SIR_dynamics
 
     if transmission_weight is not None or tau * gamma == 0:
-        print("Entering if")
         trans_rate_fxn, rec_rate_fxn = EoN._get_rate_functions_(G, tau, gamma,
                                                                 transmission_weight,
                                                                 recovery_weight)
