@@ -277,7 +277,7 @@ intra_cohort_infection_list = [low_infection_rate / 10]#, low_infection_rate / 5
 testing_fraction_list = [0,.5,1,2]#,0.5,1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.0001.,0.0002.,0.0003.]#, 0.002, 0.003, 0.004, 0.005]  #
+fraction_community_list = [0.0001,0.0002,0.0003]#, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
