@@ -16,6 +16,10 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
     within_school_final_infected_FR = []
     final_infected_RWC = [0]
     outbreak = .05 * G.number_of_nodes()
+
+    ##########change following
+    outbreak= 3.
+
     num_outbreak_FR30 = 0.0
     num_outbreak_FR60 = 0.0
     num_outbreak_FR90 = 0.0
@@ -209,7 +213,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
 
 
 school_sim = 1
-num_sim = 10
+num_sim = 1000
 total_students = 6 * 12 * 25  # 2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students / num_grades)
@@ -270,10 +274,10 @@ cg_scale = 1
 
 intra_cohort_infection_list = [low_infection_rate / 10]#, low_infection_rate / 5, low_infection_rate]
 
-testing_fraction_list = [1]#,0.5,1]  # 0, 0.1,
+testing_fraction_list = [0,.5,1,2]#,0.5,1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.001]#, 0.002, 0.003, 0.004, 0.005]  #
+fraction_community_list = [0.0001,0.0002,0.0003]#, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
@@ -381,15 +385,15 @@ for testing_fraction in testing_fraction_list:
     new_data_to_dump = pd.DataFrame(new_data_infected)
     print(data_to_dump)
     print(full_data_to_dump)
-    with open('withMaskHSVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(data_to_dump, filehandle)
 
-    with open('withMaskHSNewInfectedVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskNewInfectedVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(new_data_to_dump, filehandle)
 
-    with open('withMaskHSFullVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
+    with open('withMaskFullVaccine' + str(int(testing_fraction * 100)) + 't.data', 'wb') as filehandle:
         # store the data as binary data stream
         pickle.dump(full_data_to_dump, filehandle)
 
