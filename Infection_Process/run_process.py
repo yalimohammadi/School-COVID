@@ -66,8 +66,8 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
     avg_time=0
     trans_array=np.zeros((G.number_of_nodes(),G.number_of_nodes()))
     for i in range(num_sim):
-        start_time=time.time()
-        print("Start")
+        # start_time=time.time()
+        # print("Start")
         #convention 0==Monday, 1 ==Tuesday and so on
         t, S, E, I, NI, T, R, Isolated, CI,status, total_infections_from_community = EoN.fast_SIR(G, gamma=removal_rate,
                                                                                            tau=transmission_scale,
@@ -80,9 +80,9 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
                                                                                            weighted_test=False,
                                                                                            school=school, isolate=True,
                                                                                            tmax=tmax, com_inf_dict=com_inf_dict, test_fraction=test_fraction,trans_array=trans_array)
-        total_time=time.time()-start_time
-        avg_time+=total_time
-        print("Iteration time = ",total_time)
+        # total_time=time.time()-start_time
+        # avg_time+=total_time
+        # print("Iteration time = ",total_time)
         nvalue=0
         nvalueCI=0
         ntime=6
@@ -213,7 +213,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
 
 
 school_sim = 1
-num_sim = 1000
+num_sim = 100
 total_students = 6 * 12 * 25  # 2000
 num_grades = 6  # its either 3 or 6
 num_of_students_within_grade = int(total_students / num_grades)
