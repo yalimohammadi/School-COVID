@@ -261,8 +261,8 @@ student_teacher_infection_rate = low_infection_rate
 
 # Initial infected and community spread
 initial_fraction_infected = 0.0001  # initial fraction infected (fix this)
-###################NOTE I changed next line!!!
-infection_rate_between_teachers = low_infection_rate * 0.01  # we will fix this for Nov 13 plot
+###################NOTE I ch
+infection_rate_between_teachers = low_infection_rate * 0.01
 
 # SENSITIVITY PARAMETERS
 
