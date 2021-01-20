@@ -1,4 +1,3 @@
-import seaborn as sns
 import matplotlib.pyplot as plt
 from delphi_epidata import Epidata
 from datetime import date
