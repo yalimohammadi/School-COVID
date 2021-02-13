@@ -12,6 +12,7 @@ from Testing_Strategies import Simple_Random
 
 def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_fraction=0, fraction_infected_at_each_time_step_from_community=0,
                           removal_rate=1., transmission_scale=1., initial_fraction_infected=0.01, num_sim=1, tmax=160):
+    initial_fraction_infected = 0.0 #changed this on Feb
     final_infected_FR = []
     within_school_final_infected_FR = []
     final_infected_RWC = [0]
@@ -86,7 +87,7 @@ def SIR_on_weighted_Graph(all_test_times, G, school, number_of_tests=0,test_frac
         nvalue=0
         nvalueCI=0
         ntime=6
-        num_of_weeks=20
+        num_of_weeks=12 #changed this num_weeks to 3 months
         nweeks=0
         k = 0
         while nweeks<num_of_weeks:
@@ -277,7 +278,10 @@ intra_cohort_infection_list = [low_infection_rate / 10, low_infection_rate / 5, 
 testing_fraction_list = [0,.5,1,2]#,0.5,1]  # 0, 0.1,
 
 # per day what fraction of students are infected from the community.
-fraction_community_list = [0.0016,0.0032,0.004,0.0048]#, 0.002, 0.003, 0.004, 0.005]  #
+
+
+fraction_community_list = [0.00016,0.0016,0.008,0.016,0.032]
+#, 0.002, 0.003, 0.004, 0.005]  #
 # fraction_community_list =[ 0]
 import pickle
 
